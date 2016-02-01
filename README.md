@@ -46,11 +46,15 @@ No more prerequisites are required. Mininet must be run under root privileges.
 ### 2.1. On real hardware
 
 When using real hardware, please ensure that the connector module within the framework configuration file (framework/config.py) is set to CONNECTOR = "linux"
+Further, adjust the name of the wired interface used for Internet connection (default eth0) in the config file using your favourite editor e.g. vim.
+```
+$ vim /framework/config.py
+```
 Afterwards execute:
 ```
 $ ./start_resfi.sh phyX
 ```
-while phyX has to be replaced by the corresponding physical interface of the wireless adapter.
+while phyX has to be replaced by the corresponding physical interface of the wireless adapter. 
 The hostapd configuration file which is used can be found in the subfolder hostapd-20131120/hostapd/hostapd-ch40.conf and can be adjusted to the needed purpose.
 
 ### 2.2. Emulation in Mininet

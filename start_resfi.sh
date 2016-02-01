@@ -32,4 +32,5 @@ sleep 1
 sudo ./hostapd-20131120/hostapd/hostapd hostapd-20131120/hostapd/hostapd-ch40.conf &
 sleep 5
 #Starting ResFi Agent
-sudo python framework/resfi_loader.py
+cd framework/
+sudo python resfi_loader.py

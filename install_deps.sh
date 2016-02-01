@@ -5,6 +5,7 @@ sudo apt-get update
 sudo apt-get install git gawk build-essential autoconf libtool pkg-config
 
 echo "Installing python-pip, netifaces for mininet ... "
+sudo apt-get install python-dev
 sudo apt-get install python-pip
 sudo pip install netifaces
 
