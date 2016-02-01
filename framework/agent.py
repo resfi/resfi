@@ -41,12 +41,7 @@ import random
 import config
 import json
 
-'''
-    The ResFi agent.
 
-    TODO:
-    - modelling of messages to correctly represent ctrl/data messages and supporting multiple applications
-'''
 class ResFiAgent(ResFiNorthBoundAPI):
 
     def __init__(self, log):
