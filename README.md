@@ -29,10 +29,10 @@ sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/re
 Build hostapd and iw:
 
 ```
-cd hostapd-20131120/hostapd/; make
+cd hostapd-20131120/hostapd/; make; cd ../../
 ```
 ```
-cd iw-4.3; make
+cd iw-4.3; make; cd ..
 ```
 
 ### 1.2. Emulation in Mininet
@@ -46,10 +46,9 @@ No more prerequisites are required. Mininet must be run under root privileges.
 ### 2.1. On real hardware
 
 When using real hardware, please ensure that the connector module within the framework configuration file (framework/config.py) is set to CONNECTOR = "linux"
-Further, adjust the name of the wired interface used for Internet connection (default eth0) in the config file using your favourite editor e.g. vim.
-```
-$ vim /framework/config.py
-```
+Further, adjust the name of the wired interface used for Internet connection (default eth0) in the config file using your favourite editor e.g. vim framework/config.py.
+
+
 Afterwards execute:
 ```
 $ ./start_resfi.sh phyX
