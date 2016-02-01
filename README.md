@@ -23,7 +23,7 @@ We tested ResFi on the following platforms:
 
 Just execute:
 ```
-sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/XYZ.git ; cd XYZ ; chmod +x install_deps.sh ; ./install_deps.sh
+sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/resfi/resfi.git ; cd resfi ; chmod +x install_deps.sh ; ./install_deps.sh
 ```
 
 Build hostapd and iw:
