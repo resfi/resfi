@@ -124,4 +124,5 @@ class ResFiApp(AbstractResFiApp):
 ## 9. Contact
 * Sven Zehl, TU-Berlin, zehl@tkn
 * Anatolij Zubow, TU-Berlin, zubow@tkn
+* Michael Döring, TU-Berlin, doering@tkn
 * tkn = tkn.tu-berlin.de
