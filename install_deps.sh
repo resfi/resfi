@@ -13,4 +13,5 @@ sudo apt-get install libzmq3-dev
 sudo apt-get install python-zmq
 
 echo "Installing libnl-dev for hostapd and iw..."
-sudo apt-get install libnl-dev
+sudo apt-get install libnl-3-dev
+sudo apt-get install libnl-genl-3-dev
