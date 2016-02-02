@@ -65,12 +65,18 @@ $ cd framework/mininet; sudo python mn_driver.py
 ```
 The additional --help command will provide more configuration possibilities.
 e.g.
--s SEED, --seed SEED    Seed
--t TOPO, --topo TOPO    Choose topology: star, tree
--n NODES, --nodes       Maximum number of nodes
--c CLI, --cli CLI       Open Mininet CLI for manual simulation
-                            (1) or start automatic
-                            (0) executes resfi_loader.py on every node after the mininet topology has been loaded. (default)
+    usage: sudo python mn_driver.py [-h] [-r RUNTIME] [-s SEED] [-t TOPO] [-n NODES] [-c CLI]
+
+    Commandline options:
+      -h, --help                      show help message and exit
+      -r RUNTIME, --runtime RUNTIME   Emulation runtime
+      -s SEED, --seed SEED            Seed
+      -t TOPO, --topo TOPO            Choose topology: star, tree
+      -n NODES, --nodes NODES         Maximum number of nodes. 
+      -c CLI, --cli CLI               (1) Open Mininet CLI for manual simulation, 
+                                      afterwards type xterm apX for node access.
+                                      (0) executes resfi_loader.py on every node 
+                                      after the mininet topology has been loaded (default).
 
 
 
