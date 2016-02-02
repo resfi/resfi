@@ -65,8 +65,8 @@ $ cd framework/mininet; sudo python mn_driver.py
 ```
 The additional --help command will provide more configuration possibilities.
 e.g.
-    usage: sudo python mn_driver.py [-h] [-r RUNTIME] [-s SEED] [-t TOPO] [-n NODES] [-c CLI]
 
+    usage: sudo python mn_driver.py [-h] [-r RUNTIME] [-s SEED] [-t TOPO] [-n NODES] [-c CLI]
     Commandline options:
       -h, --help                      show help message and exit
       -r RUNTIME, --runtime RUNTIME   Emulation runtime
