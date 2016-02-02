@@ -9,7 +9,7 @@ fi
 phy=$1
 
 # cleanup
-for i in `seq 1 10`;
+for i in `seq 0 10`;
 do
   sudo iw dev mon${i} del 2>/dev/null
   sudo iw dev wlan${i} del 2>/dev/null
