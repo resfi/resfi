@@ -23,16 +23,16 @@ We tested ResFi on the following platforms:
 
 Just execute:
 ```
-sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/resfi/resfi.git ; cd resfi ; chmod +x install_deps.sh ; ./install_deps.sh
+$ sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/resfi/resfi.git ; cd resfi ; chmod +x install_deps.sh ; ./install_deps.sh
 ```
 
 Build hostapd and iw:
 
 ```
-cd hostapd-20131120/hostapd/; make; cd ../../
+$ cd hostapd-20131120/hostapd/; make; cd ../../
 ```
 ```
-cd iw-4.3; make; cd ..
+$ cd iw-4.3; make; cd ..
 ```
 
 ### 1.2. Emulation in Mininet
@@ -88,52 +88,52 @@ e.g.
 
 The following illustrates an example of a ResFi app:
 ```
-    import time
-    from common.resfi_api import AbstractResFiApp
+import time
+from common.resfi_api import AbstractResFiApp
 
-    class ResFiApp(AbstractResFiApp):
+class ResFiApp(AbstractResFiApp):
 
-        def __init__(self, log, agent):
-            AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.hello-world", agent)
+    def __init__(self, log, agent):
+        AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.hello-world", agent)
 
-        """
-        Function will be started by ResFi runtime
-        """
-        def run(self):
-            self.log.debug("%s: plugin::hello-world started ... " % self.agent.getNodeID())
+    """
+    Function will be started by ResFi runtime
+    """
+    def run(self):
+        self.log.debug("%s: plugin::hello-world started ... " % self.agent.getNodeID())
 
-            # control loop
-            while not self.isTerminated():
+        # control loop
+        while not self.isTerminated():
 
-                # send message to ResFi neighbors using ResFi northbound API
-                my_msg = {}
-                my_msg['payload'] = {'msg1' : 'hello', 'msg2' : 'world!'}
-                self.sendToNeighbors(my_msg, 1)
+            # send message to ResFi neighbors using ResFi northbound API
+            my_msg = {}
+            my_msg['payload'] = {'msg1' : 'hello', 'msg2' : 'world!'}
+            self.sendToNeighbors(my_msg, 1)
 
-                time.sleep(1)
+            time.sleep(1)
 
-            self.log.debug("%s: plugin::hello-world stopped ... " % self.agent.getNodeID())
+        self.log.debug("%s: plugin::hello-world stopped ... " % self.agent.getNodeID())
 
-        """
-        receive callback function
-        """
-        def rx_cb(self, json_data):
-            self.log.info("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], 
-                json_data['tx_time_mus'], json_data))
+    """
+    receive callback function
+    """
+    def rx_cb(self, json_data):
+        self.log.info("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], 
+            json_data['tx_time_mus'], json_data))
 
-        """
-        new Link Notification Callback
-        """
-        def newLink_cb(self, nodeID):
-            self.log.info("%s ::newLink_cb() new AP neighbor detected notification (newLink: %s)" 
-                % (self.ns, nodeID))
+    """
+    new Link Notification Callback
+    """
+    def newLink_cb(self, nodeID):
+        self.log.info("%s ::newLink_cb() new AP neighbor detected notification (newLink: %s)" 
+            % (self.ns, nodeID))
 
-        """
-        Link Lost Notification Callback
-        """
-        def linkFailure_cb(self, nodeID):
-            self.log.info("%s :: linkFailure_cb() neighbor AP disconnected (lostLink: %s)" 
-                % (self.ns, nodeID))
+    """
+    Link Lost Notification Callback
+    """
+    def linkFailure_cb(self, nodeID):
+        self.log.info("%s :: linkFailure_cb() neighbor AP disconnected (lostLink: %s)" 
+            % (self.ns, nodeID))
 
 ```
 
