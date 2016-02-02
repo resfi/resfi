@@ -82,46 +82,53 @@ e.g.
 
 The following illustrates an example of a ResFi app:
 ```
-class ResFiApp(AbstractResFiApp):
+    import time
+    from common.resfi_api import AbstractResFiApp
 
-    def __init__(self, log, agent):
-        AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.hello-world", agent)
+    class ResFiApp(AbstractResFiApp):
 
-    """
-    Function will be started by ResFi runtime
-    """
-    def run(self):
-        self.log.debug("%s: plugin::hello-world started ... " % self.agent.getNodeID())
+        def __init__(self, log, agent):
+            AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.hello-world", agent)
 
-        # control loop
-        while not self.isTerminated():
+        """
+        Function will be started by ResFi runtime
+        """
+        def run(self):
+            self.log.debug("%s: plugin::hello-world started ... " % self.agent.getNodeID())
 
-            # send message to ResFi neighbors using ResFi northbound API
-            my_msg = {}
-            my_msg['payload'] = {'msg1' : 'hello', 'msg2' : 'world!'}
-            self.sendToNeighbors(my_msg)
+            # control loop
+            while not self.isTerminated():
 
-            time.sleep(1)
+                # send message to ResFi neighbors using ResFi northbound API
+                my_msg = {}
+                my_msg['payload'] = {'msg1' : 'hello', 'msg2' : 'world!'}
+                self.sendToNeighbors(my_msg, 1)
 
-        self.log.debug("%s: plugin::hello-world stopped ... " % self.agent.getNodeID())
+                time.sleep(1)
 
-    """
-    receive callback function
-    """
-    def rx_cb(self, json_data):
-        self.log.info("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], json_data['tx_time_mus'], json_data))
+            self.log.debug("%s: plugin::hello-world stopped ... " % self.agent.getNodeID())
 
-    """
-    new Link Notification Callback
-    """
-    def newLink_cb(self, nodeID):
-        self.log.info("%s ::newLink_cb() new AP neighbor detected notification (newLink: %s)" % (self.ns, nodeID))
+        """
+        receive callback function
+        """
+        def rx_cb(self, json_data):
+            self.log.info("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], 
+                json_data['tx_time_mus'], json_data))
 
-    """
-    Link Lost Notification Callback
-    """
-    def linkFailure_cb(self, nodeID):
-        self.log.info("%s :: linkFailure_cb() neighbor AP disconnected (lostLink: %s)" % (self.ns, nodeID))
+        """
+        new Link Notification Callback
+        """
+        def newLink_cb(self, nodeID):
+            self.log.info("%s ::newLink_cb() new AP neighbor detected notification (newLink: %s)" 
+                % (self.ns, nodeID))
+
+        """
+        Link Lost Notification Callback
+        """
+        def linkFailure_cb(self, nodeID):
+            self.log.info("%s :: linkFailure_cb() neighbor AP disconnected (lostLink: %s)" 
+                % (self.ns, nodeID))
+
 ```
 
 ## 9. Contact
