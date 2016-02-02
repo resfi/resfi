@@ -85,13 +85,13 @@ The following illustrates an example of a ResFi app:
 class ResFiApp(AbstractResFiApp):
 
     def __init__(self, log, agent):
-        AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.distchan", agent)
+        AbstractResFiApp.__init__(self, log, "de.berlin.tu.tkn.hello-world", agent)
 
     """
     Function will be started by ResFi runtime
     """
     def run(self):
-        self.log.debug("%s: plugin::my-plugin started ... " % self.agent.getNodeID())
+        self.log.debug("%s: plugin::hello-world started ... " % self.agent.getNodeID())
 
         # control loop
         while not self.isTerminated():
@@ -103,7 +103,7 @@ class ResFiApp(AbstractResFiApp):
 
             time.sleep(1)
 
-        self.log.debug("%s: plugin::my plugin stopped ... " % self.agent.getNodeID())
+        self.log.debug("%s: plugin::hello-world stopped ... " % self.agent.getNodeID())
 
     """
     receive callback function
