@@ -208,7 +208,7 @@ class LinuxConnector(AbstractConnector):
         Set radio channel of AP
     """
     def setChannel(self, freq):
-        command = 'sudo ' + HOSTAPD_PATH + 'hostapd_cli -p ' + HOSTAPD_CTRL_PATH + ' chan_switch 0 ' + str(freq)
+        command = 'sudo ' + HOSTAPD_PATH + 'hostapd_cli -p ' + HOSTAPD_CTRL_PATH + ' chan_switch 5 ' + str(freq)
         ret = self.run_command(command)
         ret = ret.split('\n')[1]
         if ret == 'OK':
