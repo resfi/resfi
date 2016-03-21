@@ -144,7 +144,7 @@ class ResFiApp(AbstractResFiApp):
 * tkn = tkn.tu-berlin.de
 * 
 
-### How to reference ResFi
+## 10. How to reference ResFi
 Please use the following bibtex :
 
 ```
