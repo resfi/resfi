@@ -35,6 +35,11 @@ $ cd hostapd-20131120/hostapd/; make; cd ../../
 $ cd iw-4.3; make; cd ..
 ```
 
+Or as a one-liner:
+```
+$ sudo apt-get update ; sudo apt-get install git ; git clone https://github.com/resfi/resfi.git ; cd resfi ; chmod +x install_deps.sh ; ./install_deps.sh; cd hostapd-20131120/hostapd/; make; cd ../../; cd iw-4.3; make; cd ..
+```
+
 ### 1.2. Emulation in Mininet
 
 Emulation is tested Ubuntu 12.10 with Mininet 2.2.0
