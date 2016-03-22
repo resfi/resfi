@@ -8,6 +8,7 @@ echo "Installing python-pip, netifaces for mininet ... "
 sudo apt-get install python-dev
 sudo apt-get install python-pip
 sudo pip install netifaces
+sudo pip install pycrypto
 
 echo "Installing ZeroMQ"
 sudo apt-get install libzmq3-dev
