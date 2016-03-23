@@ -17,3 +17,9 @@ sudo apt-get install python-zmq
 echo "Installing libnl-dev for hostapd and iw..."
 sudo apt-get install libnl-3-dev
 sudo apt-get install libnl-genl-3-dev
+
+echo "##########################################"
+echo "Setup finished, please adjust CONNECTOR and WIRED_INTERFACE in file framework/config.py"
+echo "e.g vim framework/config.py"
+echo "When finished start ResFi Agent with ./start_resfi.sh phyX"
+echo "##########################################"
