@@ -23,7 +23,7 @@ __author__ = 'zehl, zubow, wolisz, doering'
 
 
 # RESFI CONFIG PARAMETERS
-CONNECTOR = "mininet"
+CONNECTOR = "linux"
 DEBUG = True
 LOGGING_PATH = "/tmp/"
 # polling interval used by forwarding engine
