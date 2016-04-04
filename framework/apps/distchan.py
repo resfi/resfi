@@ -73,7 +73,7 @@ class ResFiApp(AbstractResFiApp):
             self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
 
             load = max(self.min_load, self.getNetworkLoad())
-            self.log.debug('Load is %d' % load)
+            self.log.debug('Load is %0.2f' % load)
 
             my_msg = {}
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : load}
@@ -114,7 +114,7 @@ class ResFiApp(AbstractResFiApp):
 
         my_load = max(self.min_load, self.getNetworkLoad())
 
-        self.log.debug('Load is %d' % my_load)
+        self.log.debug('Load is %0.2f' % my_load)
 
         # calc Hc as proposed in Hminmax algorithm:
         for ii in range(len(self.ch_lst)): # for each channel
