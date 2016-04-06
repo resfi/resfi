@@ -70,7 +70,7 @@ class ResFiApp(AbstractResFiApp):
         while not self.isTerminated():
 
             self.my_rf_channel = self.getChannel()
-            self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
+            self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel))
 
             load = max(self.min_load, self.getNetworkLoad())
             self.log.debug('Load is %0.2f' % load)
