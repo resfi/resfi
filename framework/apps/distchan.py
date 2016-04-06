@@ -129,7 +129,7 @@ class ResFiApp(AbstractResFiApp):
         best_k = -1
         best_val = 1e3
         for ii in range(len(self.ch_lst)):
-            self.log.debug('NB: max weight on ch=%d -> %d' % (ii, self.Hc[ii]))
+            self.log.debug('NB: max weight on ch=%d -> %0.2f' % (self.ch_lst[ii], self.Hc[ii]))
 
             if self.Hc[ii] < best_val:
                 best_k = ii
