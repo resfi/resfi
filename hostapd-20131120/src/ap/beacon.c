@@ -339,7 +339,13 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 #endif /* CONFIG_WPS */
 
 #ifdef PROBERESP_IE_ADDING_SUPPORT
-    if (hapd->vendorspec_beacon_ie) {
+	/*Jittering to prevent probe response collisions*/
+	struct timespec delay;
+        delay.tv_sec = 0;
+        delay.tv_nsec = 1000000ULL * rand() / RAND_MAX;
+        nanosleep(&delay, NULL);
+
+    	if (hapd->vendorspec_beacon_ie) {
 		os_memcpy(pos, wpabuf_head(hapd->vendorspec_beacon_ie),
 			  wpabuf_len(hapd->vendorspec_beacon_ie));
 		pos += wpabuf_len(hapd->vendorspec_beacon_ie);
