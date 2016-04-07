@@ -162,7 +162,7 @@ static int hostapd_ctrl_iface_add_ie(struct hostapd_data *hapd,
 	if (len == 0) {
 		wpabuf_free(hapd->vendorspec_beacon_ie);
 		hapd->vendorspec_beacon_ie = NULL;
-        ieee802_11_set_beacon(hapd);
+        //ieee802_11_set_beacon(hapd);
         printf("All addtional IE(s) cleared\n");
         return 0;
 	}
@@ -181,7 +181,7 @@ static int hostapd_ctrl_iface_add_ie(struct hostapd_data *hapd,
 
     wpabuf_free(hapd->vendorspec_beacon_ie);
     hapd->vendorspec_beacon_ie = elems;
-    ieee802_11_set_beacon(hapd);
+    //ieee802_11_set_beacon(hapd);
     return 0;
 }
 
