@@ -53,9 +53,9 @@ class ParsingHelper:
         ipNeighbor = data[SymKeyStrLen+SymIVStrLen+pubKeyStrLen:]
 
         self.log.debug("EncryptKey: %s" % str(encryptionKeyNeighbor))
-        self.log.debug("Encrypt IV %s: "+str(encryptionIVNeighbor))
-        self.log.debug("Pub KEY: %s"+str(pubKeyNeighbor))
-        self.log.debug("IP: %s"+str(ipNeighbor))
+        self.log.debug("Encrypt IV %s: "% str(encryptionIVNeighbor))
+        self.log.debug("Pub KEY: %s" % str(pubKeyNeighbor))
+        self.log.debug("IP: %s" % str(ipNeighbor))
         self.log.debug("In ASCII:")
         if (len(encryptionKeyNeighbor)%2) != 0 or (len(encryptionIVNeighbor)%2) != 0 :
             self.log.debug("Received Key or IV is odd, not usable")

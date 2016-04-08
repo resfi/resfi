@@ -88,7 +88,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
 
         self.init_self_connection()
 
-        scanResults = self.connector.performActiveScan(True, "", 0, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostnameStrHex)
+        scanResults = self.connector.performActiveScan(True, "", 0, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostnameStrHex, self.freq)
         self.onAPJoined(scanResults)
 
         # thread responsible for handling probe requests received by hostapd, takes callback for probe request handling
@@ -391,7 +391,11 @@ class ResFiAgent(ResFiNorthBoundAPI):
         self.log.debug("ResFi: handle_incoming_probe_requests")
         self.log.debug("ResFi: payload: %s" % payload )
         if 'B16B00B5' in payload:
-            resfiIe = payload.split('B16B00B5',1)[1]
+            resfiIe = payload.split('B16B00B5',2)[1]
+            resfiIe = resfiIe.replace('DD06', '')
+            resfiFreq = payload.split('B16B00B5',2)[2]
+            freq = int(resfiFreq) 
+            self.log.info("ResFi: resfiFreq: %s" % str(freq) )
             self.log.debug("ResFi: Incoming ResFi Probe Request")
             self.log.debug(resfiIe)
             self.processingChangeKeysEvent.wait()
@@ -399,7 +403,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
             self.sendingUserSpaceMessageEvent.wait()
             self.sendingUserCtrlMessageEvent.wait()
             self.processingProbeRequestEvent.clear()
-            newNeighbor = self.parsing_helper.parse_resfi_ie(resfiIe, len(self.keyHexStr), len(self.ivHexStr), len(self.pubKeyHexStr), int(rssi), 0, 0, 0)
+            newNeighbor = self.parsing_helper.parse_resfi_ie(resfiIe, len(self.keyHexStr), len(self.ivHexStr), len(self.pubKeyHexStr), int(rssi), 0, freq, 0)
             neighborList = {}
             neighborList[newNeighbor.ipAddress] = newNeighbor
             self.onAPJoined(neighborList)

@@ -102,15 +102,16 @@ class LinuxConnector(AbstractConnector):
 
         self.log.debug(ret)
 
-    def performActiveScan(self, fullScan, ssid, freq, pubKeyStr, SymKeyStr, SymIVStr, IpStr):
+    def performActiveScan(self, fullScan, ssid, freq, pubKeyStr, SymKeyStr, SymIVStr, IpStr, ownFreq):
         self.log.debug('Linux:: performActiveScan()')
 
         neighborList = {}
         if fullScan:
             payloadString = SymKeyStr + SymIVStr + pubKeyStr + IpStr
             dotFormattedIE = self.wifi_helper.hex_to_vendor_spec_ie(payloadString, True)
+            dotFormattedIE2 = self.wifi_helper.hex_to_vendor_spec_ie(str(ownFreq), True)
             self.log.debug("Performing full WiFi scan, including big ResFi IE")
-            command = 'sudo ../iw-4.3/iw dev ap5 scan -u ies ' + dotFormattedIE + ' ap-force'
+            command = 'sudo ../iw-4.3/iw dev ap5 scan -u ies ' + dotFormattedIE + ":" + dotFormattedIE2 + ' ap-force'
             self.log.debug(str(command))
         else:
             if len(ssid) == 0:
@@ -318,7 +319,7 @@ class MininetConnector(AbstractConnector):
         self.log.debug("Probe Respone content: %s" % str(self.probeResponseContent))
 
     # ResFiSouthBoundAPI
-    def performActiveScan(self, fullScan, ssid, freq, pubKeyStr, SymKeyStr, SymIVStr, IpStr):
+    def performActiveScan(self, fullScan, ssid, freq, pubKeyStr, SymKeyStr, SymIVStr, IpStr, ownFreq):
         self.log.debug('Mininet::  performActiveScan()')
         # def scanSimulator(self):
         neighborList = {}
@@ -330,7 +331,7 @@ class MininetConnector(AbstractConnector):
         timeout = time.time() + 1
         dataArray = []
         if fullScan:
-            vProbeReq = "B16B00B5" + SymKeyStr + SymIVStr + pubKeyStr + IpStr
+            vProbeReq = "B16B00B5" + SymKeyStr + SymIVStr + pubKeyStr + IpStr + "B16B00B5" + str(ownFreq)
         else:
             vProbeReq = ''
         scanResult = ''
