@@ -32,6 +32,7 @@ from Crypto import Random
 import config
 import threading
 from Crypto.Cipher import PKCS1_OAEP
+from threading import Thread
 
 
 """
@@ -339,3 +340,17 @@ class SecurityHelper:
         cipher = PKCS1_OAEP.new(rsaKey)
         plain = cipher.decrypt(assymEncrMessage)
         return plain
+
+
+class ChannelSwitchGuardThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        #self.stopped = event
+
+    def run(self, lastKCM, guard, kcmInter, freq, channel, callback, finisher, channelOld, freqOld):
+        while True:
+            if (((int(time.time()) - lastKCM) > guard) and ((int(time.time()) - lastKCM) < (kcmInter-guard))):
+                ret = callback(freq)
+                finisher(ret, channel, freq, channelOld, freqOld)
+                return
+            time.sleep(0.001)    

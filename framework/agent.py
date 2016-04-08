@@ -27,6 +27,7 @@ from utils import NetworkHelper
 from utils import SecurityHelper
 from utils import Neighbor
 from utils import ParsingHelper
+from utils import ChannelSwitchGuardThread
 from common.resfi_api import ResFiNorthBoundAPI
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
@@ -518,7 +519,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
         maxRetries = retries
         found = False
         for cc in range(0, maxRetries):
-            scanResults = self.connector.performActiveScan(False, ssid, freq, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostname)
+            scanResults = self.connector.performActiveScan(False, ssid, freq, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostname, 0)
             for key in scanResults:
                 if scanResults[key].ipAddress == host:
                     if str(scanResults[key].encryptionKey.encode("hex")) != str(self.globalNeighborList[host].encryptionKey.encode("hex")):
@@ -786,17 +787,24 @@ class ResFiAgent(ResFiNorthBoundAPI):
             self.processingChangeKeysEvent.wait()
             self.sendingUserCtrlMessageEvent.wait()
             self.processingNeighborUpdateEvent.wait()
-            while((int(time.time()) - self.globalNeighborList[self.hostname].timestampLastKCM) < config.CHANNEL_SWITCH_GUARD) or ((int(time.time()) - self.globalNeighborList[self.hostname].timestampLastKCM) > (config.KEYCHANGEINTERVAL-config.CHANNEL_SWITCH_GUARD)):
-                time.sleep(0.01)
-            ret = self.connector.setChannel(freq)
-            if ret == 'OK':
-                self.channel = channel
-                self.freq = freq
-                return True
-            else:
-                self.log.warn("Channel Switch to %s not successful, returned error: %s" % (str(channel), str(ret)))
+            #while((int(time.time()) - self.globalNeighborList[self.hostname].timestampLastKCM) < config.CHANNEL_SWITCH_GUARD) or ((int(time.time()) - self.globalNeighborList[self.hostname].timestampLastKCM) > (config.KEYCHANGEINTERVAL-config.CHANNEL_SWITCH_GUARD)):
+            self.channel_switch_helper = ChannelSwitchGuardThread()
+            self.channel_switch_helper.run(self.globalNeighborList[self.hostname].timestampLastKCM, config.CHANNEL_SWITCH_GUARD, config.KEYCHANGEINTERVAL, freq, channel, self.connector.setChannel, self.setChannelFinished, self.channel, self.freq)
+            self.channel = channel
+            self.freq = freq
+            return True
+
         else:
             raise Exception("Unsupported Channel: " + str(channel))
+            
+    def setChannelFinished(self, ret, channel, freq, channelOld, freqOld):
+        if ret == 'OK':
+            self.channel = channel
+            self.freq = freq
+        else:
+            self.log.warn("Channel Switch to %s not successful, returned error: %s" % (str(channel), str(ret)))  
+            self.channel = channelOld
+            self.freq = freqOld 
 
     def getChannel(self):
         return self.connector.getChannel()
