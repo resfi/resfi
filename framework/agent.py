@@ -566,6 +566,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
                     self.frontend.connect("tcp://%s:%s" % (adjacentNode, tmp_port))
                     self.globalNeighborList[adjacentNode] = scanResultList[key]
                     for ns in self.globalAppList:
+                        self.processingProbeRequestEvent.set()
                         self.log.debug("Notifying Application: %s" % str(ns))
                         self.globalAppList[ns].newLink_cb(adjacentNode)
             except Exception as e:
