@@ -580,6 +580,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
         del self.globalNeighborList[adjacentNode]
         self.log.debug("ResFi: neighbor removed.")
         for ns in self.globalAppList:
+            self.processingNeighborUpdateEvent.set()
             self.log.debug("Notifying Application: %s" % str(ns))
             self.globalAppList[ns].linkFailure_cb(adjacentNode)
 
