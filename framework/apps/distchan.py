@@ -36,9 +36,11 @@ class ResFiApp(AbstractResFiApp):
         AbstractResFiApp.__init__(self, log, 'de.berlin.tu.tkn.distchan', agent)
         # channel change interval
         self.jitter = 10
-        self.min_load = 0.5
+        self.min_load = 0
         self.start_ts = long(time.time() * 1000000)
         self.Hc = {}
+        self.Mc = {}
+        self.Sc = {}
         self.nbMap = {}
         self.ch_lst = self.getAvailableChannels(True)
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))
@@ -52,16 +54,16 @@ class ResFiApp(AbstractResFiApp):
 
     def run(self):
 
-        #return
-
         self.log.debug("%s: plugin::dist-chan started ... " % self.agent.getNodeID())
 
         # wait to settle down
         time.sleep(5)
         # init phase
 
-        for ii in range(len(self.ch_lst)):
-            self.Hc[ii] = 0
+        for ch in self.ch_lst:
+            self.Hc[ch] = 0
+            self.Sc[ch] = 0
+            self.Mc[ch] = 0
 
         # wait random to make sure all nodes are not synchronized
         rnd_wait_time = random.uniform(0, self.jitter)
@@ -107,43 +109,65 @@ class ResFiApp(AbstractResFiApp):
         # OPT phase
         for entry in self.nbMap:
             # for each neighbor
-            tmpCh = self.nbMap[entry]['ch']
-            tmpLoad = self.nbMap[entry]['load']
+            nbCh = self.nbMap[entry]['ch']
+            nbLoad = self.nbMap[entry]['load']
+            self.log.debug('NB info: %s -> (c=%s,l=%s)' % (entry, str(nbCh), str(nbLoad)))
 
-            self.log.debug('NB info: %s -> (c=%s,l=%s)' % (entry, str(tmpCh), str(tmpLoad)))
-
+        # my own network load
         my_load = max(self.min_load, self.getNetworkLoad())
-
         self.log.debug('Load is %0.2f' % my_load)
 
-        # calc Hc as proposed in Hminmax algorithm:
-        for ii in range(len(self.ch_lst)): # for each channel
-            self.Hc[ii] = 0 # reset to zero
+        # (0) wmax
+        wmax = 0
+        for entry in self.nbMap: # for each neighbor
+            nbCh = self.nbMap[entry]['ch']
+            nbLoad = self.nbMap[entry]['load']
+            edge_weight = nbLoad + my_load
+            if edge_weight > wmax:
+                wmax = edge_weight
+
+        # (a) calc Hc as proposed in Hminmax algorithm:
+        for ch in self.ch_lst: # for each channel
+            self.Hc[ch] = 0 # reset to zero
+            for entry in self.nbMap: # for each neighbor
+                nbCh = self.nbMap[entry]['ch']
+                if nbCh == ch: # same channel
+                    # select the max() weight; here load
+                    self.Hc[ch] = max(self.Hc[ch], my_load + self.nbMap[entry]['load'])
+
+        # (b) mark colors with the max conflict weight
+        for ch in self.ch_lst: # for each channel
+            if self.Hc[ch] >= wmax:
+                self.Mc[ch] = 1
+            else:
+                self.Mc[ch] = 0
+
+        # (c) sum of weights of all edges to api whose nb has a color c
+        for ch in self.ch_lst: # for each channel
+            self.Sc[ch] = 0 # reset to zero
             for entry in self.nbMap: # for each neighbor
                 tmpCh = self.nbMap[entry]['ch']
-                if tmpCh == self.ch_lst[ii]: # same channel
-                    # select the max() weight; here load
-                    self.Hc[ii] = max(self.Hc[ii], my_load + self.nbMap[entry]['load'])
+                if tmpCh == ch: # same channel
+                    # sum up
+                    self.Sc[ch] = self.Sc[ch] + my_load + self.nbMap[entry]['load']
 
-        # choose min
-        best_k = -1
-        best_val = 1e3
-        for ii in range(len(self.ch_lst)):
-            self.log.debug('NB: max weight on ch=%d -> %0.2f' % (self.ch_lst[ii], self.Hc[ii]))
+        # (d) choose color with min sum conflict among all unmarked colors
+        best_ch = None
+        best_val = 1e6
+        for ch in self.ch_lst:
+            self.log.debug('NB: max weight on ch=%d -> %0.2f' % (ch, self.Sc[ch]))
 
-            if self.Hc[ii] < best_val:
-                best_k = ii
-                best_val = self.Hc[ii]
+            if self.Sc[ch] < best_val and self.Mc[ch] == 0:
+                best_ch = ch
+                best_val = self.Sc[ch]
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
 
-        new_channel = self.ch_lst[best_k]
-        if self.my_rf_channel != new_channel:
-            #self.agent.wifi_helper.translateFrequencyToChannel(int(ch_lst[0]))
-            self.log.info("%.2f: (%s): plugin:: dist-chan chanel switch from %s to %s"
-                           % (self.getRelativeTs(), self.agent.getNodeID(), str(self.my_rf_channel), str(new_channel)))
-            self.setChannel(new_channel)
+        if best_ch is not None and self.my_rf_channel != best_ch:
+            self.log.info("(%s): plugin:: dist-chan chanel switch from %s to %s"
+                           % (self.agent.getNodeID(), str(self.my_rf_channel), str(best_ch)))
+            self.setChannel(best_ch)
             self.my_rf_channel = self.getChannel()
 
 
