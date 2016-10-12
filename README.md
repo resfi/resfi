@@ -1,15 +1,24 @@
 # ResFi: A Secure Framework for Distributed Radio Resource Management of Residential WiFi Networks 
 
+<img src="resfi-cooperation.jpg" width="700">
+
 ## 0. What is ResFi?
-In dense deployments of residential WiFi networks individual users suffer performance degradation due to both contention and interference.
-While Radio Resource Management (RRM) is known to mitigate this effects its application in residential WiFi networks being by nature unplanned 
-and individually managed creates a big challenge.
-We propose ResFi - a framework supporting creation of RRM functionality in legacy deployments.
-The radio interfaces are used for efficient discovery of adjacent APs and as a side-channel to establish a secure communication among the 
-individual Access Point Management Applications within a neighborhood over the wired Internet backbone.
-We have implemented a prototype of ResFi and studied its performance in our testbed.
-As a showcase we have implemented various RRM applications among others a distributed channel assignment algorithm using ResFi.
-ResFi is provided to the community as open source.
+ResFi is a framework enabling the creation of distributed Radio Resource Management (RRM) functionality in residential or home WLAN deployments. The radio interface of participating APs is used for efficient discovery of adjacent APs and as a side-channel to exchange connection configuration parameters. Those parameters namely the public IP of each AP’s RRM unit and security credentials are then used to build up secured communication tunnels between adjacent APs via the Internet. 
+### 0.1 How does ResFi work?
+The ResFi connection procedure, depicted in the following figure, can be presented in a nutshell as follows: During the boot-up phase of any AP a broadcast probe request frame including a ResFi vendor specific information element (IEV) contain ing so called ”contact data” is triggered sequentially on each of the supported channels. Any AP within the coverage of this scan request is expected to answer with the respective ”contact data” of the responder, cf. following figure tag (1). This is possible by inserting a broadcast SSID within the probe request which triggers a response from all networks which have been able to receive this request. The contact data, embedded in a IEV of both the active scan probe and response consists of the globally-routeable IP address and port number of the AP’s RRMU (on the fixed internet) as well as of a transient one-hop group encryption key and a public cryptography key individual to this RRMU. After having completed the scan and having received the answers, the RRMU of the newly booted AP can establish a secure, point-to-point control channel to the RRMUs of all the ”discovered” APs over the wired backbone Internet, following figure, tag (2). In addition, the discovered APs will do the same in the reverse direction. 
+
+<img src="resfi_connect.png" width="700">
+
+Placing the control channel into the wired connectivity has several advantages. Notably there is no additional load on the wireless interfaces, and there is obviously a lower error rate. On the other hand longer message exchange delays have to be taken into account. This does not seem to be really a big issue, as the radio resource management does not take place in very short time scales. Thus coordination within one-hop neighborhood would be available at this point.
+It is, however, well known that RRM (e.g. channel selection) can achieve better efficiency if performed over a cluster of
+APs larger than one hop neighborhood. Therefore ResFi requires that each RRMU is able to act as a forwarder enabling to extend secure connectivity towards up to N hops (N can be set individually for every message sent via ResFi’s northbound framework API). ResFi does not define the precise policy to create an RRM cluster within the scope of the connectivity borders mentioned above; neither does it feature a specific RRM approach. Both of these decisions are delegated to an RRM application which is not a part of the platform itself. The security of the control channel is not constrained to the establishment with the use of proper cryptographic keys; in addition the keys are occasionally exchanged. Further, as the exchanged symmetric group en-
+cryption keys are known to the full group, ResFi applications can, to enable confidentiality between two APs, request unicast encryption with a distinct peer. The ResFi framework will then on demand create and exchange unicast encryption keys by utilizing the asymetric keys exchanged during the discovery phase. Moreover, different RRM applications like channel assignment and interference management were implemented on top of ResFi. ResFi is available as open-source and provides a well-defined
+northbound and southbound API which is shown in the following figure. 
+
+<img src="resfi_api.jpg" width="500">
+
+While the southbound API enables vendors and researchers easily to connect their current AP solution with the ResFi framework, the extensible northbound API is used by ResFi application developers to implement their own RRM solution. The ResFi runtime
+supports the concurrent execution of multiple applications.
 
 For more details please refer to our Paper:
 <http://www.tkn.tu-berlin.de/fileadmin/fg112/Papers/2016/zehl16resfi.pdf>
@@ -19,7 +28,9 @@ For more details please refer to our Paper:
 ### 1.1. On real hardware
 
 We tested ResFi on the following platforms:
-* Linux (Ubuntu) on x86 hardware (Intel) with IEEE 802.11 wireless devices (Atheros (ATH9K))
+* Linux (Ubuntu) on x86 hardware (Intel) with IEEE 802.11 wireless devices (Atheros (ATH9K)), here the southbound API is connected as shown in the following figure.
+
+<img src="resfi-linux.jpg" width="500">
 
 Just execute:
 ```
