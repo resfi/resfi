@@ -256,6 +256,44 @@ class LinuxConnector(AbstractConnector):
                 pass
         self.log.debug('ResFi: chs %s' % str(chs))
         return chs
+        
+        
+    """
+        Get List of used channels
+    """
+    def getScanResults(self, restrict5Ghz=False):
+        dev_name = config.WIRELESS_INTERFACE
+        command = "sudo ../iw-4.3/iw dev " + dev_name + " scan ap-force | grep 'SSID\|freq\|signal'"
+        ret = self.run_command(command)
+        ret = ret.split('\n') 
+        res = {}
+        for t in ret:
+           try:
+               #print(t)
+               arr = t.strip().split(':')
+               if (len(arr) >=2):
+                   k = arr[0].strip()
+                   v = arr[1].strip()
+                   #print('%s -> %s' % (k,v))
+                   if k == 'freq':
+                       # translate freq to channel
+                       ch = self.wifi_helper.translateFrequencyToChannel(int(v))
+                       if int(ch) < 14:
+                           if restrict5Ghz:
+                               pass
+                           else:	   
+                               if ch in res:
+                                   res[ch] = res[ch] + 1
+                               else:
+                                   res[ch] = 1
+                       else:
+                           if ch in res:
+                               res[ch] = res[ch] + 1
+                           else:
+                               res[ch] = 1           
+           except ValueError:
+               print('Error')     
+        return res
 
     """
         The network load on an AP:

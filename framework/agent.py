@@ -88,10 +88,12 @@ class ResFiAgent(ResFiNorthBoundAPI):
         time.sleep(1)
 
         self.init_self_connection()
-
-        scanResults = self.connector.performActiveScan(True, "", 0, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostnameStrHex, self.freq)
-        self.onAPJoined(scanResults)
-
+        
+        for x in range(0,2):
+            x = x + 1
+            scanResults = self.connector.performActiveScan(True, "", 0, self.pubKeyHexStr, self.keyHexStr, self.ivHexStr, self.hostnameStrHex, self.freq)
+            self.onAPJoined(scanResults)
+            time.sleep(5)
         # thread responsible for handling probe requests received by hostapd, takes callback for probe request handling
         probereq_t = threading.Thread(name='subscribeToProbeRequests', target=self.connector.subscribeToProbeRequests, args=(self.handle_incoming_probe_requests,))
         probereq_t.setDaemon(True)
@@ -813,6 +815,9 @@ class ResFiAgent(ResFiNorthBoundAPI):
 
     def getAvailableChannels(self, restrict5Ghz=False):
         return self.connector.getAvailableChannels(restrict5Ghz)
+        
+    def getScanResults(self, restrict5Ghz=False):
+        return self.connector.getScanResults(restrict5Ghz)    
 
     def getNetworkLoad(self):
         return self.connector.getNetworkLoad()

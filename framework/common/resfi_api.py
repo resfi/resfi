@@ -123,6 +123,13 @@ class ResFiNorthBoundAPI(object):
         Get a list of available radio channels for the wireless interface running in AP mode.
         """
         return
+        
+    @abc.abstractmethod
+    def getScanResults(self):
+        """
+        Get list of used channels
+        """
+        return    
 
     @abc.abstractmethod
     def getNetworkLoad(self):
@@ -286,6 +293,9 @@ class AbstractResFiApp(ResFiNorthBoundAPI, Thread):
 
     def getAvailableChannels(self, restrict5Ghz=False):
         return self.agent.getAvailableChannels(restrict5Ghz)
+        
+    def getScanResults(self, restrict5Ghz=False):
+        return self.agent.getScanResults(restrict5Ghz)    
 
     def getNetworkLoad(self):
         return self.agent.getNetworkLoad()

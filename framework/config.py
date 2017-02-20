@@ -28,7 +28,7 @@ DEBUG = True
 LOGGING_PATH = "/tmp/"
 # polling interval used by forwarding engine
 SLEEP_DUR = 0.01 # Sleep duration of Forwarder loop
-KEYCHANGEINTERVAL = 60 # seconds min 10
+KEYCHANGEINTERVAL = 3600 # seconds min 10
 CHANNEL_SWITCH_GUARD = 2 # to protect channel switch
 
 # GENERAL CONFIG

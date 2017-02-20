@@ -36,16 +36,42 @@ class ResFiApp(AbstractResFiApp):
         AbstractResFiApp.__init__(self, log, 'de.berlin.tu.tkn.distchan', agent)
         # channel change interval
         self.jitter = 10
-        self.min_load = 0
+        self.min_load = 3
         self.start_ts = long(time.time() * 1000000)
         self.Hc = {}
         self.Mc = {}
         self.Sc = {}
-        self.nbMap = {}
-        self.ch_lst = self.getAvailableChannels(True)
-        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))
+        self.nbMap = {} 
+        self.ch_lst = []
+        self.used_ch_lst = {}
+        self.rxcntr = 0
+        #self.available_ch_lst = self.getAvailableChannels(True)
+        self.available_ch_lst = []
+        self.available_ch_lst.append(36)
+        self.available_ch_lst.append(40)
+        self.available_ch_lst.append(44)
+        self.available_ch_lst.append(48)
+        self.ch_lst = self.available_ch_lst
+        self.used_ch_lst = self.getScanResults(True)
+        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
         self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
+
+    def updateChannelList(self):
+        
+        #self.used_ch_lst = self.getScanResults(True)
+        self.ch_lst = [36, 40, 44]
+        return
+        neigh_ch_lst = []
+        for entry in self.nbMap: # for each neighbor
+            neigh_ch_lst.append(self.nbMap[entry]['ch'])
+            print "Neighbor Channels: "+str(neigh_ch_lst)
+        for x in range(0,len(self.available_ch_lst)):
+            if (self.available_ch_lst[x] not in self.used_ch_lst.keys()) or (self.available_ch_lst[x] in neigh_ch_lst):
+                self.ch_lst.append(self.available_ch_lst[x])
+        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
+        self.log.info("%.2f: (%s): plugin:: dist-chan used channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.used_ch_lst)))
+        self.log.info("%.2f: (%s): plugin:: dist-chan free channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))	
 
     def getRelativeTs(self):
         timestamp = long(time.time() * 1000000) # timestamp in micros
@@ -72,7 +98,7 @@ class ResFiApp(AbstractResFiApp):
         while not self.isTerminated():
 
             self.my_rf_channel = self.getChannel()
-            self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel))
+            self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d, free channels:%s " % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst)))
 
             load = max(self.min_load, self.getNetworkLoad())
             self.log.debug('Load is %0.2f' % load)
@@ -95,6 +121,8 @@ class ResFiApp(AbstractResFiApp):
 
         message = json_data['payload']
 
+        self.updateChannelList()
+
         timestampSent = json_data['tx_time_mus']
         sender = json_data['originator']
         nb_channel = int(message['ch'])
@@ -102,7 +130,7 @@ class ResFiApp(AbstractResFiApp):
 
         # save last update of each node
         self.nbMap[sender] = {'load': nb_load, 'ch': nb_channel}
-
+        
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: %s/%s"
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_channel), str(nb_load)))
 
@@ -176,7 +204,6 @@ class ResFiApp(AbstractResFiApp):
     """
     def newLink_cb(self, nodeID):
         self.log.info("%s ::newLink_cb() new AP neighbor detected notification (newLink: %s)" % (self.ns, nodeID))
-
 
     """
     Link Lost Notification Callback
