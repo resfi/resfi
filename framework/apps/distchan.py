@@ -52,26 +52,26 @@ class ResFiApp(AbstractResFiApp):
         self.available_ch_lst.append(44)
         self.available_ch_lst.append(48)
         self.ch_lst = self.available_ch_lst
-        self.used_ch_lst = self.getScanResults(True)
+        #self.used_ch_lst = self.getScanResults(True)
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
         self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
 
-    def updateChannelList(self):
-        
-        #self.used_ch_lst = self.getScanResults(True)
-        self.ch_lst = [36, 40, 44]
-        return
-        neigh_ch_lst = []
-        for entry in self.nbMap: # for each neighbor
-            neigh_ch_lst.append(self.nbMap[entry]['ch'])
-            print "Neighbor Channels: "+str(neigh_ch_lst)
-        for x in range(0,len(self.available_ch_lst)):
-            if (self.available_ch_lst[x] not in self.used_ch_lst.keys()) or (self.available_ch_lst[x] in neigh_ch_lst):
-                self.ch_lst.append(self.available_ch_lst[x])
-        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
-        self.log.info("%.2f: (%s): plugin:: dist-chan used channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.used_ch_lst)))
-        self.log.info("%.2f: (%s): plugin:: dist-chan free channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))	
+#    def updateChannelList(self):
+#        
+#        #self.used_ch_lst = self.getScanResults(True)
+#        self.ch_lst = [36, 40, 44]
+#        return
+#        neigh_ch_lst = []
+#        for entry in self.nbMap: # for each neighbor
+#            neigh_ch_lst.append(self.nbMap[entry]['ch'])
+#            print "Neighbor Channels: "+str(neigh_ch_lst)
+#        for x in range(0,len(self.available_ch_lst)):
+#            if (self.available_ch_lst[x] not in self.used_ch_lst.keys()) or (self.available_ch_lst[x] in neigh_ch_lst):
+#                self.ch_lst.append(self.available_ch_lst[x])
+#        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
+#        self.log.info("%.2f: (%s): plugin:: dist-chan used channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.used_ch_lst)))
+#        self.log.info("%.2f: (%s): plugin:: dist-chan free channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))	
 
     def getRelativeTs(self):
         timestamp = long(time.time() * 1000000) # timestamp in micros
@@ -86,10 +86,10 @@ class ResFiApp(AbstractResFiApp):
         time.sleep(5)
         # init phase
 
-        for ch in self.ch_lst:
-            self.Hc[ch] = 0
-            self.Sc[ch] = 0
-            self.Mc[ch] = 0
+        #for ch in self.ch_lst:
+        #    self.Hc[ch] = 0
+        #    self.Sc[ch] = 0
+        #    self.Mc[ch] = 0
 
         # wait random to make sure all nodes are not synchronized
         rnd_wait_time = random.uniform(0, self.jitter)
@@ -121,7 +121,7 @@ class ResFiApp(AbstractResFiApp):
 
         message = json_data['payload']
 
-        self.updateChannelList()
+        #self.updateChannelList()
 
         timestampSent = json_data['tx_time_mus']
         sender = json_data['originator']
@@ -133,6 +133,9 @@ class ResFiApp(AbstractResFiApp):
         
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: %s/%s"
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_channel), str(nb_load)))
+
+#IMPLEMENT OWN ALGORITHM HERE!
+
 
         # OPT phase
         for entry in self.nbMap:
