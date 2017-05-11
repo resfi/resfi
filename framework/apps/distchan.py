@@ -96,13 +96,7 @@ class ResFiApp(AbstractResFiApp):
 
         self.log.debug("%s: plugin::dist-chan stopped ... " % self.agent.getNodeID())
         
-        
-    def data_fusion():    
-        for entry lneigh_rf:     
-			if lneigh_rf.
-			self.lneigh_rf = {}
-        self.lneighnrf = {}
-        self.lneigh = {}    					
+        					
             
     """
     receive callback function
