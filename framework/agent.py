@@ -812,6 +812,9 @@ class ResFiAgent(ResFiNorthBoundAPI):
 
     def getChannel(self):
         return self.connector.getChannel()
+        
+    def getBssid(self):
+        return self.connector.getBssid()    
 
     def getAvailableChannels(self, restrict5Ghz=False):
         return self.connector.getAvailableChannels(restrict5Ghz)
