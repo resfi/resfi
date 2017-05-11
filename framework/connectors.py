@@ -71,6 +71,8 @@ class LinuxConnector(AbstractConnector):
     def __init__(self, log):
         AbstractConnector.__init__(self, log)
         self.hostap_path = HOSTAPD_PATH
+        self.channel = 0
+        self.bssid = 0
 
     def getWiredInterface(self):
         return WIRED_INTERFACE
@@ -183,6 +185,7 @@ class LinuxConnector(AbstractConnector):
         freq = self.wifi_helper.translateChannelToFrequency(channel)
         self.freq = freq
         bssid = retParams[1]
+        self.bssid = bssid
         ssid = retParams[2]
         params = {'channel': channel, 'bssid': bssid, 'ssid': ssid, 'freq': freq}
         return params
