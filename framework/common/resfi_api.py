@@ -116,6 +116,7 @@ class ResFiNorthBoundAPI(object):
         :param data,    returns currently used channel
         """
         return
+        
 
     @abc.abstractmethod
     def getAvailableChannels(self):
@@ -214,7 +215,15 @@ class ResFiSouthBoundAPI(object):
         :param data,    returns currently used channel
         """
         return
-
+    
+    @abc.abstractmethod
+    def getBssid(self):
+        """
+        Getting the BSSID of the AP.
+        :param data,    returns currently used BSSID
+        """
+        return
+        
 """
 Base class for all ResFi apps. Each app needs to derive from this class.
 """
@@ -290,6 +299,9 @@ class AbstractResFiApp(ResFiNorthBoundAPI, Thread):
 
     def getChannel(self):
         return self.agent.getChannel()
+        
+    def getBssid(self):
+        return self.agent.getBssid()
 
     def getAvailableChannels(self, restrict5Ghz=False):
         return self.agent.getAvailableChannels(restrict5Ghz)

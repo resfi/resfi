@@ -42,6 +42,10 @@ class ResFiApp(AbstractResFiApp):
         self.Mc = {}
         self.Sc = {}
         self.nbMap = {} 
+        self.lneigh_rf = {}
+        self.lneighnrf = {}
+        self.lneigh = {}
+        self.load = 0.0
         self.ch_lst = []
         self.used_ch_lst = {}
         self.rxcntr = 0
@@ -52,26 +56,10 @@ class ResFiApp(AbstractResFiApp):
         self.available_ch_lst.append(44)
         self.available_ch_lst.append(48)
         self.ch_lst = self.available_ch_lst
-        #self.used_ch_lst = self.getScanResults(True)
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
         self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
 
-#    def updateChannelList(self):
-#        
-#        #self.used_ch_lst = self.getScanResults(True)
-#        self.ch_lst = [36, 40, 44]
-#        return
-#        neigh_ch_lst = []
-#        for entry in self.nbMap: # for each neighbor
-#            neigh_ch_lst.append(self.nbMap[entry]['ch'])
-#            print "Neighbor Channels: "+str(neigh_ch_lst)
-#        for x in range(0,len(self.available_ch_lst)):
-#            if (self.available_ch_lst[x] not in self.used_ch_lst.keys()) or (self.available_ch_lst[x] in neigh_ch_lst):
-#                self.ch_lst.append(self.available_ch_lst[x])
-#        self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
-#        self.log.info("%.2f: (%s): plugin:: dist-chan used channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.used_ch_lst)))
-#        self.log.info("%.2f: (%s): plugin:: dist-chan free channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.ch_lst)))	
 
     def getRelativeTs(self):
         timestamp = long(time.time() * 1000000) # timestamp in micros
@@ -86,11 +74,6 @@ class ResFiApp(AbstractResFiApp):
         time.sleep(5)
         # init phase
 
-        #for ch in self.ch_lst:
-        #    self.Hc[ch] = 0
-        #    self.Sc[ch] = 0
-        #    self.Mc[ch] = 0
-
         # wait random to make sure all nodes are not synchronized
         rnd_wait_time = random.uniform(0, self.jitter)
         time.sleep(rnd_wait_time)
@@ -100,11 +83,11 @@ class ResFiApp(AbstractResFiApp):
             self.my_rf_channel = self.getChannel()
             self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d, free channels:%s " % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst)))
 
-            load = max(self.min_load, self.getNetworkLoad())
+            self.load = max(self.min_load, self.getNetworkLoad())
             self.log.debug('Load is %0.2f' % load)
 
             my_msg = {}
-            my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : load}
+            my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf'}
             self.sendToNeighbors(my_msg, 1)
 
             # random backoff
@@ -112,7 +95,15 @@ class ResFiApp(AbstractResFiApp):
             time.sleep(rnd_wait_time)
 
         self.log.debug("%s: plugin::dist-chan stopped ... " % self.agent.getNodeID())
-
+        
+        
+    def data_fusion():    
+        for entry lneigh_rf:     
+			if lneigh_rf.
+			self.lneigh_rf = {}
+        self.lneighnrf = {}
+        self.lneigh = {}    					
+            
     """
     receive callback function
     """
@@ -127,78 +118,37 @@ class ResFiApp(AbstractResFiApp):
         sender = json_data['originator']
         nb_channel = int(message['ch'])
         nb_load = float(message['load'])
-
-        # save last update of each node
-        self.nbMap[sender] = {'load': nb_load, 'ch': nb_channel}
+        nb_bssid = message['bssid']
+        nb_type = message['type'] #rf or nrf
         
-        self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: %s/%s"
-                       % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_channel), str(nb_load)))
-
-#IMPLEMENT OWN ALGORITHM HERE!
-
-
-        # OPT phase
-        for entry in self.nbMap:
-            # for each neighbor
-            nbCh = self.nbMap[entry]['ch']
-            nbLoad = self.nbMap[entry]['load']
-            self.log.debug('NB info: %s -> (c=%s,l=%s)' % (entry, str(nbCh), str(nbLoad)))
-
-        # my own network load
-        my_load = max(self.min_load, self.getNetworkLoad())
-        self.log.debug('Load is %0.2f' % my_load)
-
-        # (0) wmax
-        wmax = 0
-        for entry in self.nbMap: # for each neighbor
-            nbCh = self.nbMap[entry]['ch']
-            nbLoad = self.nbMap[entry]['load']
-            edge_weight = nbLoad + my_load
-            if edge_weight > wmax:
-                wmax = edge_weight
-
-        # (a) calc Hc as proposed in Hminmax algorithm:
+        # save last update of each node
+        self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type}
+        
+        self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: [%s](%s): %s/%s"
+                       % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_bssid), str(nb_type), str(nb_channel), str(nb_load)))
+        
         for ch in self.ch_lst: # for each channel
-            self.Hc[ch] = 0 # reset to zero
+			lsumcha = {}
+            lsumcha[str(ch)] = 0.0 # reset to zero
             for entry in self.nbMap: # for each neighbor
                 nbCh = self.nbMap[entry]['ch']
                 if nbCh == ch: # same channel
-                    # select the max() weight; here load
-                    self.Hc[ch] = max(self.Hc[ch], my_load + self.nbMap[entry]['load'])
-
-        # (b) mark colors with the max conflict weight
+                    lsumcha[str(ch)] = lsumcha[str(ch)] + self.nbMap[entry]['load']
+                lsumcha[str(ch)] = lsumcha[str(ch)] + self.load    
+        bestcha = 0
+        leastload = 1e9
         for ch in self.ch_lst: # for each channel
-            if self.Hc[ch] >= wmax:
-                self.Mc[ch] = 1
-            else:
-                self.Mc[ch] = 0
-
-        # (c) sum of weights of all edges to api whose nb has a color c
-        for ch in self.ch_lst: # for each channel
-            self.Sc[ch] = 0 # reset to zero
-            for entry in self.nbMap: # for each neighbor
-                tmpCh = self.nbMap[entry]['ch']
-                if tmpCh == ch: # same channel
-                    # sum up
-                    self.Sc[ch] = self.Sc[ch] + my_load + self.nbMap[entry]['load']
-
-        # (d) choose color with min sum conflict among all unmarked colors
-        best_ch = None
-        best_val = 1e6
-        for ch in self.ch_lst:
-            self.log.debug('NB: max weight on ch=%d -> %0.2f' % (ch, self.Sc[ch]))
-
-            if self.Sc[ch] < best_val and self.Mc[ch] == 0:
-                best_ch = ch
-                best_val = self.Sc[ch]
+			if lsumcha[str(ch)] < leastload:
+				bestcha = ch
+				leastload = lsumcha[str(ch)]
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
 
-        if best_ch is not None and self.my_rf_channel != best_ch:
+        if bestcha is not 0 and self.my_rf_channel != bestcha:
             self.log.info("(%s): plugin:: dist-chan chanel switch from %s to %s"
-                           % (self.agent.getNodeID(), str(self.my_rf_channel), str(best_ch)))
-            self.setChannel(best_ch)
+                           % (self.agent.getNodeID(), str(self.my_rf_channel), str(bestcha)))
+            self.setChannel(bestcha)
             self.my_rf_channel = self.getChannel()
 
 

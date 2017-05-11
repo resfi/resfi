@@ -221,6 +221,12 @@ class LinuxConnector(AbstractConnector):
         if self.channel == 0:
             self.getAPparams()
         return self.channel
+        
+        
+    def getBssid(self):
+        if self.bssid == 0:
+            self.getAPparams()
+        return self.bssid        
 
     """
         Get physical interface
