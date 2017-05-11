@@ -84,7 +84,7 @@ class ResFiApp(AbstractResFiApp):
             self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d, free channels:%s " % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst)))
 
             self.load = max(self.min_load, self.getNetworkLoad())
-            self.log.debug('Load is %0.2f' % load)
+            self.log.debug('Load is %0.2f' % self.load)
 
             my_msg = {}
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf'}
