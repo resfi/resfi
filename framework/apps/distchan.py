@@ -122,7 +122,7 @@ class ResFiApp(AbstractResFiApp):
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_bssid), str(nb_type), str(nb_channel), str(nb_load)))
         
         for ch in self.ch_lst: # for each channel
-			lsumcha = {}
+            lsumcha = {}
             lsumcha[str(ch)] = 0.0 # reset to zero
             for entry in self.nbMap: # for each neighbor
                 nbCh = self.nbMap[entry]['ch']
