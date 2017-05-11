@@ -120,15 +120,15 @@ class ResFiApp(AbstractResFiApp):
         
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: [%s](%s): %s/%s"
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_bssid), str(nb_type), str(nb_channel), str(nb_load)))
-        
+        lsumcha = {}
         for ch in self.ch_lst: # for each channel
-            lsumcha = {}
             lsumcha[str(ch)] = 0.0 # reset to zero
+            lsumcha[str(ch)] = lsumcha[str(ch)] + self.load 
             for entry in self.nbMap: # for each neighbor
                 nbCh = self.nbMap[entry]['ch']
                 if nbCh == ch: # same channel
                     lsumcha[str(ch)] = lsumcha[str(ch)] + self.nbMap[entry]['load']
-                lsumcha[str(ch)] = lsumcha[str(ch)] + self.load    
+                   
         bestcha = 0
         leastload = 1e9
         for ch in self.ch_lst: # for each channel
