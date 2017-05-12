@@ -28,6 +28,8 @@ __author__ = 'zehl, zubow, wolisz, doering'
 import time
 from common.resfi_api import AbstractResFiApp
 import random
+import thread
+from scapy.all import *
 
 
 class ResFiApp(AbstractResFiApp):
@@ -41,6 +43,7 @@ class ResFiApp(AbstractResFiApp):
         self.Hc = {}
         self.Mc = {}
         self.Sc = {}
+        self.aps = {}
         self.nbMap = {} 
         self.lneigh_rf = {}
         self.lneighnrf = {}
@@ -59,6 +62,7 @@ class ResFiApp(AbstractResFiApp):
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
         self.log.info("%.2f: (%s): plugin:: dist-chan curr ch=%d" % (self.getRelativeTs(), self.agent.getNodeID(), self.my_rf_channel))
+        thread.start_new_thread(sniff, (iface="mon0", prn=self.packet_handler))
 
 
     def getRelativeTs(self):
@@ -157,3 +161,121 @@ class ResFiApp(AbstractResFiApp):
     """
     def linkFailure_cb(self, nodeID):
         self.log.info("%s :: linkFailure_cb() neighbor AP disconnected (lostLink: %s)" % (self.ns, nodeID))
+
+
+
+    def packet_handler(self, pkt) :
+        # if packet has 802.11 layer, and type of packet is Data frame
+        if pkt.haslayer(Dot11) and pkt.type == 2:
+                DS = pkt.FCfield & 0x3
+                to_DS = DS & 0x1 != 0
+                from_DS = DS & 0x2 != 0
+                length = len(pkt)
+                if to_DS and not from_DS:
+                    if str(pkt.addr3) == "ff:ff:ff:ff:ff:ff":
+                        return
+                    #Address 1 = BSSID
+                    #Address 2 = Source
+                    #Address 3 = Destination
+                    bssid = pkt.addr1
+                    sta = pkt.addr2
+                    sender = pkt.addr3
+                    ap = bssid
+                    #print "STA->AP: \tBSSID: "+str(bssid)+" Sender: "+str(sender)+" STA: "+str(sta)+ " length: "+str(length) +" sent: "+str(aps[ap][sta][sent])
+                    if ap in self.aps:
+                        if sta in self.aps[ap]:
+                            print ""
+                            #okay we have that STA already
+                        else:
+                            self.aps[ap][sta]={}
+                            self.aps[ap][sta]['active'] = False 
+                            self.aps[ap][sta]['ts'] = int(round(time.time() * 1000))
+                            self.aps[ap][sta]['sent'] = {}    
+                            self.aps[ap][sta]['rec'] = {}
+                            self.aps[ap][sta]['sent']=0
+                            self.aps[ap][sta]['rec']= 0
+                    else:
+                        self.aps[ap] = {}
+                        self.aps[ap]['activeStas']= []
+                        self.aps[ap][sta]={}
+                        self.aps[ap][sta]['active'] = False
+                        self.aps[ap][sta]['ts'] = int(round(time.time() * 1000))
+                        self.aps[ap][sta]['sent'] = {}
+                        self.aps[ap][sta]['rec'] = {}
+                        self.aps[ap][sta]['sent'] = 0
+                        self.aps[ap][sta]['rec']= 0
+                    self.aps[ap][sta]['sent'] = self.aps[ap][sta]['sent'] + int(length)
+                    print "STA->AP: \tBSSID: "+str(bssid)+" STA: "+str(sta)+ " length: "+str(length) +"\t#sum sent: "+str(self.aps[ap][sta]['sent'])
+    
+                elif from_DS and not to_DS:
+                    if str(pkt.addr1) == "ff:ff:ff:ff:ff:ff":
+                        return
+                    #Multicast filtering...
+                    #If the least significant bit of the first octet of an address is set to 0 (zero), the frame is meant to reach only one receiving NIC
+                    firstOctRec = str(pkt.addr1)[:2]
+                    scale = 16 ## equals to hexadecimal
+                    num_of_bits = 8
+                    firstOctRecBin = bin(int(firstOctRec, scale))[2:].zfill(num_of_bits)
+                    notUnicast = firstOctRecBin[7:]
+                    if notUnicast == '1':
+                        return
+                    #Address 1 = Destination
+                    #Address 2 = BSSID
+                    #Address 3 = Source
+                    bssid = pkt.addr2
+                    sta = pkt.addr1
+                    receiver = pkt.addr3
+                    ap = bssid
+                    if ap in self.aps:
+                        if sta in self.aps[ap]:
+                            print ""
+                            #okay we have that STA already
+                        else:
+                            self.aps[ap][sta]={}
+                            self.aps[ap][sta]['active'] = False
+                            self.aps[ap][sta]['ts'] = int(round(time.time() * 1000))
+                            self.aps[ap][sta]['sent'] = {}    
+                            self.aps[ap][sta]['rec'] = {}
+                            self.aps[ap][sta]['sent']=0
+                            self.aps[ap][sta]['rec']= 0
+                    else:
+                        self.aps[ap] = {}
+                        self.aps[ap]['activeStas']= []
+                        self.aps[ap][sta]={}
+                        self.aps[ap][sta]['active'] = False
+                        self.aps[ap][sta]['ts'] = int(round(time.time() * 1000))
+                        self.aps[ap][sta]['sent'] = {} 
+                        self.aps[ap][sta]['rec'] = {}
+                        self.aps[ap][sta]['sent'] = 0
+                        self.aps[ap][sta]['rec']= 0
+                    self.aps[ap][sta]['rec'] = self.aps[ap][sta]['rec'] + int(length)
+    
+                    print "AP->STA: \tBSSID: "+str(bssid)+" STA: "+str(sta) + " length: "+str(length) +"\t#sum rec: "+str(self.aps[ap][sta]['rec'])
+             #
+             #Ch
+                #eck if a STA is active
+                cts= int(round(time.time() * 1000))
+                for ap in self.aps:
+                    for sta in self.aps[ap]:
+                         if sta != "activeStas":
+                             if (cts - self.aps[ap][sta]['ts']) > 20000:
+                                 if self.aps[ap][sta]['sent'] > 50000 or self.aps[ap][sta]['rec'] > 50000:
+                                     self.aps[ap][sta]['active'] = True
+                                     if sta not in self.aps[ap]['activeStas']:
+                                         self.aps[ap]['activeStas'].append(sta)
+                                 else: 
+                                     self.aps[ap][sta]['active'] = False
+                                     if sta in self.aps[ap]['activeStas']:
+                                         index = self.aps[ap]['activeStas'].index(sta)
+                                         del self.aps[ap]['activeStas'][index]
+    
+                                 self.aps[ap][sta]['sent'] = 0
+                                 self.aps[ap][sta]['rec'] = 0
+                                 self.aps[ap][sta]['ts'] = cts
+                print "#######"
+                for ap in self.aps:
+                    print "Active STAs AP[ "+str(ap)+"]: "+str(self.aps[ap]['activeStas'])
+                 
+    
+    #sniff(iface="mon0", prn=packet_handler)
+    
