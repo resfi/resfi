@@ -19,6 +19,9 @@ done
 
 sudo rfkill unblock all 2>/dev/null
 
+#Configure Sniffer Interface
+sudo ./create_mon0.sh ${phy}
+
 #Configuring AP
 sleep 1
 sudo killall -9 hostapd 2> /dev/null
