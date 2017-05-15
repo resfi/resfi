@@ -1,8 +1,33 @@
 from scapy.all import *
 import time
-
+import zmq
+import sys
+import thread
+import json
 
 aps = {}
+
+def zmqServer():
+    port = "9999"
+    if len(sys.argv) > 1:
+            port =  sys.argv[1]
+            int(port)
+
+
+    context = zmq.Context()
+    socket = context.socket(zmq.REP)
+    socket.bind("tcp://*:%s" % port)
+
+    while True:
+            #  Wait for next request from client
+            message = socket.recv()
+            print "Received request: ", message
+            data = json.dumps(aps)
+            socket.send("" % data)
+
+
+
+
 def packet_handler(pkt) :
     # if packet has 802.11 layer, and type of packet is Data frame
     if pkt.haslayer(Dot11) and pkt.type == 2:
@@ -116,4 +141,5 @@ def packet_handler(pkt) :
                 print "Active STAs AP[ "+str(ap)+"]: "+str(aps[ap]['activeStas'])
              
 
+thread.start_new_thread(zmqServer, ())
 sniff(iface="mon0", prn=packet_handler)
