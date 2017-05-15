@@ -38,7 +38,7 @@ class ResFiApp(AbstractResFiApp):
         AbstractResFiApp.__init__(self, log, 'de.berlin.tu.tkn.distchan', agent)
         # channel change interval
         self.jitter = 10
-        self.min_load = 3
+        self.min_load = 1
         self.start_ts = long(time.time() * 1000000)
         self.Hc = {}
         self.Mc = {}
@@ -57,7 +57,7 @@ class ResFiApp(AbstractResFiApp):
         self.available_ch_lst.append(36)
         self.available_ch_lst.append(40)
         self.available_ch_lst.append(44)
-        self.available_ch_lst.append(48)
+        #self.available_ch_lst.append(48)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
