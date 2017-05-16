@@ -189,7 +189,7 @@ class WiFiHelper:
             for ch in range(len(self.ch_to_freq)):
                 if self.ch_to_freq[ch] == freq:
                     return ch
-            raise Exception('frequency unknown freq: ' + str(freq))
+            print "ERROR channel not found for unknown freq: " + str(freq)
         except IndexError:
             ret = 0
         return ret

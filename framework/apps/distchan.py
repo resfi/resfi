@@ -61,8 +61,8 @@ class ResFiApp(AbstractResFiApp):
         self.sniffer_socket.connect ("tcp://localhost:%s" % self.sniffer_port)
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
-        self.available_ch_lst.append(36)
-        self.available_ch_lst.append(40)
+        #self.available_ch_lst.append(36)
+        #self.available_ch_lst.append(40)
         self.available_ch_lst.append(44)
         self.available_ch_lst.append(48)
         self.ch_lst = self.available_ch_lst
