@@ -146,7 +146,7 @@ class ResFiApp(AbstractResFiApp):
         
         # save last update of each node
         self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type}
-        print "#########################"
+        print "##### Neighbor MAP ######"
         print self.nbMap
         print '#########################' 
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: [%s](%s): %s/%s"
@@ -162,14 +162,17 @@ class ResFiApp(AbstractResFiApp):
                    
         bestcha = 0
         leastload = 1e9
+        print "XXXXXXXX CHANNEL LOAD XXXXXXXXXX"
         for ch in self.ch_lst: # for each channel
+                        print"Channel: "+str(ch)+"\t Load: "+str(lsumcha[str(ch)])
 			if lsumcha[str(ch)] < leastload:
 				bestcha = ch
 				leastload = lsumcha[str(ch)]
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
-
+        print "Best Channel: "+str(bestcha)
+        print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         if bestcha is not 0 and self.my_rf_channel != bestcha:
             self.log.info("(%s): plugin:: dist-chan chanel switch from %s to %s"
                            % (self.agent.getNodeID(), str(self.my_rf_channel), str(bestcha)))
