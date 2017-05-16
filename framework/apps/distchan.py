@@ -98,6 +98,8 @@ class ResFiApp(AbstractResFiApp):
             self.sniffer_socket.send("Give me the resuls")
             message_sniffer = self.sniffer_socket.recv()
             nrf_aps = json.loads(message_sniffer)
+            self.lneigh_rf = {}
+            self.lneighnrf = {}
             for ap in nrf_aps:
                 for sta in nrf_aps[ap]:
                     if sta == "activeStas":# and len(aps[ap][sta]) > 0:
