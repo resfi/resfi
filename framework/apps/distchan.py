@@ -29,7 +29,9 @@ import time
 from common.resfi_api import AbstractResFiApp
 import random
 import thread
-
+import zmq
+import sys
+import json
 
 class ResFiApp(AbstractResFiApp):
 
@@ -51,6 +53,12 @@ class ResFiApp(AbstractResFiApp):
         self.ch_lst = []
         self.used_ch_lst = {}
         self.rxcntr = 0
+        self.sniffer_port = "9999"
+        self.nrf_load = {}
+        self.nrf_freq = {}
+        self.sniffer_context = zmq.Context()
+        self.sniffer_socket = self.sniffer_context.socket(zmq.REQ)
+        self.sniffer_socket.connect ("tcp://localhost:%s" % self.sniffer_port)
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
         self.available_ch_lst.append(36)
@@ -86,12 +94,24 @@ class ResFiApp(AbstractResFiApp):
             self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d, free channels:%s " % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst)))
 
             self.load = max(self.min_load, self.getNetworkLoad())
-            self.log.debug('Load is %0.2f' % self.load)
-
+            self.log.debug('Own Load is %0.2f' % self.load)
+            self.sniffer_socket.send("Give me the resuls")
+            message_sniffer = self.sniffer_socket.recv()
+            nrf_aps = json.loads(message_sniffer)
+            for ap in nrf_aps:
+                for sta in nrf_aps[ap]:
+                    if sta == "activeStas":# and len(aps[ap][sta]) > 0:
+                        #print "AP: "+str(ap) + " STAs: " +str(aps[ap][sta]) + " Load: "+str(len(aps[ap][sta]))
+                        self.nrf_load[str(ap)] = len(nrf_aps[ap][sta])
+                        self.nrf_freq[str(ap)] = nrf_aps[ap]['freq']
             my_msg = {}
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf'}
             self.sendToNeighbors(my_msg, 1)
-
+            for ap in self.nrf_load:
+                if str(self.getBssid()) != str(ap):
+                    my_msg = {}
+                    my_msg['payload'] = {'ch' : 0, 'load' : self.nrf_load[str(ap)], 'bssid' : str(ap), 'type' : 'nrf'}
+                    self.sendToNeighbors(my_msg, 1)
             # random backoff
             rnd_wait_time = random.uniform(0, self.jitter/2)
             time.sleep(rnd_wait_time)

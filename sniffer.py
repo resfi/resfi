@@ -39,7 +39,10 @@ def packet_handler(pkt) :
             from_DS = DS & 0x2 != 0
             length = len(pkt)
             freq = pkt.notdecoded[18:20]
-            freq = struct.unpack('h', freq)[0]
+            if len(freq) == 2 and isinstance(freq, basestring):
+                freq = struct.unpack('h', freq)[0]
+            else:
+                freq = -1
             if to_DS and not from_DS:
                 if str(pkt.addr3) == "ff:ff:ff:ff:ff:ff":
                     return
