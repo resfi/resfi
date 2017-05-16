@@ -64,7 +64,7 @@ class ResFiApp(AbstractResFiApp):
         self.available_ch_lst.append(36)
         self.available_ch_lst.append(40)
         self.available_ch_lst.append(44)
-        #self.available_ch_lst.append(48)
+        self.available_ch_lst.append(48)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
@@ -109,8 +109,13 @@ class ResFiApp(AbstractResFiApp):
             self.sendToNeighbors(my_msg, 1)
             for ap in self.nrf_load:
                 if str(self.getBssid()) != str(ap):
+                    nrf_channel = self.agent.wifi_helper.translateFrequencyToChannel(int(self.nrf_freq[str(ap)]))
+                    nrf_load = float(self.nrf_load[str(ap)])
+                    nrf_bssid = str(ap)
+                    nrf_type = 'nrf'
                     my_msg = {}
-                    my_msg['payload'] = {'ch' : 0, 'load' : self.nrf_load[str(ap)], 'bssid' : str(ap), 'type' : 'nrf'}
+                    my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type}
+                    self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type}
                     self.sendToNeighbors(my_msg, 1)
             # random backoff
             rnd_wait_time = random.uniform(0, self.jitter/2)
