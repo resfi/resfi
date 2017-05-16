@@ -7,7 +7,7 @@ import json
 
 aps = {}
 interval = 5000 #ms
-threshold = 5000 # bytes
+threshold = 2000 # bytes
 
 def zmqServer():
     port = "9999"

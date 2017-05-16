@@ -33,7 +33,7 @@ freq = {}
 for ap in aps:
     for sta in aps[ap]:
         if sta == "activeStas":# and len(aps[ap][sta]) > 0:
-            #print "AP: "+str(ap) + " STAs: " +str(aps[ap][sta]) + " Load: "+str(len(aps[ap][sta]))
+            print "AP: "+str(ap) + " STAs: " +str(aps[ap][sta]) + " Load: "+str(len(aps[ap][sta]))
             load[str(ap)] = len(aps[ap][sta])   
             freq[str(ap)] = aps[ap]['freq']
 
