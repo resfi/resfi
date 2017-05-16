@@ -7,6 +7,7 @@ import json
 
 aps = {}
 
+
 def zmqServer():
     port = "9999"
     if len(sys.argv) > 1:
@@ -17,24 +18,27 @@ def zmqServer():
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
-
+    print "ZMQ Server running!"
     while True:
-            #  Wait for next request from client
+            #  Wait for next request from clien
+            print "Waiting for request"
             message = socket.recv()
             print "Received request: ", message
             data = json.dumps(aps)
-            socket.send("" % data)
+            socket.send(str(data))
 
 
 
 
 def packet_handler(pkt) :
-    # if packet has 802.11 layer, and type of packet is Data frame
+    #print pkt.notdecoded.encode('hex')
     if pkt.haslayer(Dot11) and pkt.type == 2:
             DS = pkt.FCfield & 0x3
             to_DS = DS & 0x1 != 0
             from_DS = DS & 0x2 != 0
             length = len(pkt)
+            freq = pkt.notdecoded[18:20]
+            freq = struct.unpack('h', freq)[0]
             if to_DS and not from_DS:
                 if str(pkt.addr3) == "ff:ff:ff:ff:ff:ff":
                     return
@@ -52,6 +56,7 @@ def packet_handler(pkt) :
                         #okay we have that STA already
                     else:
                         aps[ap][sta]={}
+                        aps[ap]['freq'] = freq
                         aps[ap][sta]['active'] = False 
                         aps[ap][sta]['ts'] = int(round(time.time() * 1000))
                         aps[ap][sta]['sent'] = {}    
@@ -60,7 +65,8 @@ def packet_handler(pkt) :
                         aps[ap][sta]['rec']= 0
                 else:
                     aps[ap] = {}
-                    aps[ap]['activeStas']= []
+                    aps[ap]['activeStas'] = []
+                    aps[ap]['freq'] = freq
                     aps[ap][sta]={}
                     aps[ap][sta]['active'] = False
                     aps[ap][sta]['ts'] = int(round(time.time() * 1000))
@@ -96,6 +102,7 @@ def packet_handler(pkt) :
                         #okay we have that STA already
                     else:
                         aps[ap][sta]={}
+                        aps[ap]['freq'] = freq
                         aps[ap][sta]['active'] = False
                         aps[ap][sta]['ts'] = int(round(time.time() * 1000))
                         aps[ap][sta]['sent'] = {}    
@@ -105,6 +112,7 @@ def packet_handler(pkt) :
                 else:
                     aps[ap] = {}
                     aps[ap]['activeStas']= []
+                    aps[ap]['freq'] = freq
                     aps[ap][sta]={}
                     aps[ap][sta]['active'] = False
                     aps[ap][sta]['ts'] = int(round(time.time() * 1000))
@@ -121,7 +129,7 @@ def packet_handler(pkt) :
             cts= int(round(time.time() * 1000))
             for ap in aps:
                 for sta in aps[ap]:
-                     if sta != "activeStas":
+                     if sta != "activeStas" and sta != "freq":
                          if (cts - aps[ap][sta]['ts']) > 20000:
                              if aps[ap][sta]['sent'] > 50000 or aps[ap][sta]['rec'] > 50000:
                                  aps[ap][sta]['active'] = True
