@@ -36,7 +36,7 @@ sudo service network-manager stop /dev/null
 sleep 1
 sudo ./hostapd-20131120/hostapd/hostapd hostapd-20131120/hostapd/hostapd-ch40.conf &
 sleep 5
-sudo python ./sniffer.py &
+sudo python ./sniffer.py > /tmp/sniffer.log &
 sleep 1
 #Starting ResFi Agent
 cd framework/

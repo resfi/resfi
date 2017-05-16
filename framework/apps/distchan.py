@@ -144,7 +144,9 @@ class ResFiApp(AbstractResFiApp):
         
         # save last update of each node
         self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type}
-        
+        print "#########################"
+        print self.nbMap
+        print '#########################' 
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: [%s](%s): %s/%s"
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_bssid), str(nb_type), str(nb_channel), str(nb_load)))
         lsumcha = {}
