@@ -146,7 +146,7 @@ class ResFiApp(AbstractResFiApp):
         nb_detector = message['detector']
         
         #policy for handling information about the same ap on the same channel
-        if nb_bssid in self.nbMap and self.nbMap['ch'] == nb_channel:
+        if nb_bssid in self.nbMap and self.nbMap[nb_bssid]['ch'] == nb_channel:
             if int(round(time.time() * 1000)) - self.nbMap[nb_bssid]['last_refresh'] > 30000: #30sec timeout for values regardless who was detector or which type
                 # save last update dont care who is the detector
                 self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
