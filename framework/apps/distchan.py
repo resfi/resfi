@@ -126,7 +126,7 @@ class ResFiApp(AbstractResFiApp):
                         elif self.nbMap[nrf_bssid]['detector'] == self.agent.getNodeID(): # if it is just an update from the original detector, update own neighbor db       
                             self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                         elif self.nbMap[nrf_bssid]['detector'] != self.agent.getNodeID(): #if I have new information from different detector, take the worst case assumption
-                            if self.nbMap[nrf_bssid]['load'] >= nrf_load:
+                            if self.nbMap[nrf_bssid]['load'] > nrf_load:
                                 pass
                             else:        
                                 self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
