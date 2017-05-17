@@ -185,14 +185,12 @@ class WiFiHelper:
         return ret
 
     def translateFrequencyToChannel(self, freq):
-        try:
-            for ch in range(len(self.ch_to_freq)):
-                if self.ch_to_freq[ch] == freq:
-                    return ch
-            print "ERROR channel not found for unknown freq: " + str(freq)
-        except IndexError:
-            ret = 0
-        return ret
+        for ch in range(len(self.ch_to_freq)):
+            if self.ch_to_freq[ch] == freq:
+                return ch
+        print "ERROR channel not found for unknown freq: " + str(freq)
+        return 0
+
 
     def initializeChannelToFrequencyArray(self):
         self.ch_to_freq = [0 for x in range(200)]
