@@ -116,7 +116,7 @@ class ResFiApp(AbstractResFiApp):
                     nrf_bssid = str(ap)
                     nrf_type = 'nrf'
                     my_msg = {}
-                    my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type, , 'detector' : self.agent.getNodeID()}
+                    my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type, 'detector' : self.agent.getNodeID()}
                     self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                     self.sendToNeighbors(my_msg, 1)
             # random backoff
