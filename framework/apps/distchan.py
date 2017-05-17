@@ -107,7 +107,7 @@ class ResFiApp(AbstractResFiApp):
                         self.nrf_load[str(ap)] = len(nrf_aps[ap][sta])
                         self.nrf_freq[str(ap)] = nrf_aps[ap]['freq']
             my_msg = {}
-            my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf'}
+            my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf', 'detector' : self.agent.getNodeID()}
             self.sendToNeighbors(my_msg, 1)
             for ap in self.nrf_load:
                 if str(self.getBssid()) != str(ap):
@@ -116,8 +116,8 @@ class ResFiApp(AbstractResFiApp):
                     nrf_bssid = str(ap)
                     nrf_type = 'nrf'
                     my_msg = {}
-                    my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type}
-                    self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type}
+                    my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type, , 'detector' : self.agent.getNodeID()}
+                    self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                     self.sendToNeighbors(my_msg, 1)
             # random backoff
             rnd_wait_time = random.uniform(0, self.jitter/2)
@@ -143,9 +143,27 @@ class ResFiApp(AbstractResFiApp):
         nb_load = float(message['load'])
         nb_bssid = message['bssid']
         nb_type = message['type'] #rf or nrf
+        nb_detector = message['detector']
         
-        # save last update of each node
-        self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type}
+        #policy for handling information about the same ap on the same channel
+        if nb_bssid in self.nbMap and self.nbMap['ch'] == nb_channel:
+            if int(round(time.time() * 1000)) - self.nbMap[nb_bssid]['last_refresh'] > 30000: #30sec timeout for values regardless who was detector or which type
+                # save last update dont care who is the detector
+                self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
+            elif self.nbMap[nb_bssid]['type'] == 'nrf' and nb_type == 'rf': # if the new measurement is rf and the old nrf overwrite it
+                self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
+            elif self.nbMap[nb_bssid]['type'] == 'rf' and nb_type == 'nrf': #leave the rf value dont care about the estimated value
+                pass    
+            elif self.nbMap[nb_bssid]['detector'] == nb_detector: # if it is just an update from the original detector, update own neighbor db       
+                self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
+            elif self.nbMap[nb_bssid]['detector'] != nb_detector: #if I have new information from different detector, take the worst case assumption
+                if self.nbMap[nb_bssid]['load'] >= nb_load:
+                    pass
+                else:        
+                    self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
+        else:
+            self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
+        
         print "##### Neighbor MAP ######"
         print self.nbMap
         print '#########################' 
