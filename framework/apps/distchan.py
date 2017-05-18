@@ -219,7 +219,7 @@ class ResFiApp(AbstractResFiApp):
         print "Best Channel: "+str(bestcha)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
-        if str(bestcha) in self.leastLoadMemory:
+        if str(bestcha) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
             time_now = int(round(time.time() * 1000))
             load_diff_bc = abs(self.leastLoadMemory[str(bestcha)]-leastload) #load difference of new best channel between the load the channel had when we lastly switched to that channel to now
             load_diff_cc = abs(self.leastLoadMemory[str(self.my_rf_channel)]-lsumcha[str(self.my_rf_channel)]) #load difference between the load of the current channel from last channel switch to load now on the channel
@@ -230,14 +230,14 @@ class ResFiApp(AbstractResFiApp):
                 print "!!!Channel Switch stopped by Oscilation Protection Mechanism!!!"
                 print "Duration till channel was switched lastly: "+str(time_now - self.last_channel_switch_time)+"ms, load difference of best channel: "+str(self.leastLoadMemory[str(bestcha)]-leastload)
                 return
-        #Save last least load of channel in memory for oscilation avoidance
-        self.leastLoadMemory[str(bestcha)]=leastload
         
         if bestcha is not 0 and self.my_rf_channel != bestcha:
             self.log.info("(%s): plugin:: dist-chan chanel switch from %s to %s"
                            % (self.agent.getNodeID(), str(self.my_rf_channel), str(bestcha)))
             self.setChannel(bestcha)
             self.my_rf_channel = self.getChannel()
+            #Save last least load of channel in memory for oscilation avoidance
+            self.leastLoadMemory[str(bestcha)]=leastload
             self.last_channel_switch_time = int(round(time.time() * 1000))
 
 
