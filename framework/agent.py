@@ -541,7 +541,7 @@ class ResFiAgent(ResFiNorthBoundAPI):
                 break
             else:
                 self.log.debug("Scan Retry triggered")
-                time.sleep(random.uniform(0,0.2))
+                time.sleep(random.uniform(0,0.6))
         if cc == (maxRetries-1):
             self.log.debug("Max retries reached, neighbor removed.")
             self.onAPLeft(host, "Max rescan retries reached, neighbor removed")

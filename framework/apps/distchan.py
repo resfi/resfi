@@ -64,10 +64,10 @@ class ResFiApp(AbstractResFiApp):
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
         #self.available_ch_lst.append(36)
+        #self.available_ch_lst.append(40)
         self.available_ch_lst.append(48)
-        self.available_ch_lst.append(1)
-        self.available_ch_lst.append(6)
-        self.available_ch_lst.append(10)
+        self.available_ch_lst.append(56)
+        self.available_ch_lst.append(60)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
@@ -109,6 +109,8 @@ class ResFiApp(AbstractResFiApp):
                         #print "AP: "+str(ap) + " STAs: " +str(aps[ap][sta]) + " Load: "+str(len(aps[ap][sta]))
                         self.nrf_load[str(ap)] = len(nrf_aps[ap][sta])
                         self.nrf_freq[str(ap)] = nrf_aps[ap]['freq']
+                        if len(nrf_aps[ap][sta]) == 0:
+                            self.nrf_load[str(ap)] = 0.1
             my_msg = {}
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf', 'detector' : self.agent.getNodeID()}
             self.sendToNeighbors(my_msg, 1)
