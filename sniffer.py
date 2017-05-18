@@ -6,7 +6,7 @@ import thread
 import json
 
 aps = {}
-interval = 5000 #ms
+interval = 10000 #ms
 threshold = 2000 # bytes
 
 def zmqServer():
