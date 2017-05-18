@@ -221,7 +221,10 @@ class ResFiApp(AbstractResFiApp):
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
         if str(bestcha) in self.leastLoadMemory:
             time_now = int(round(time.time() * 1000))
-            if ((abs(self.leastLoadMemory[str(bestcha)]-leastload) <= 1.0) or (abs(self.leastLoadMemory[str(self.my_rf_channel)-lsumcha[str(self.my_rf_channel)]) <= 1.0 )) and (time_now - self.last_channel_switch_time) < self.chaSwitchGuardTimeLoWLoadChange: 
+            load_diff_bc = abs(self.leastLoadMemory[str(bestcha)]-leastload) #load difference of new best channel between the load the channel had when we lastly switched to that channel to now
+            load_diff_cc = abs(self.leastLoadMemory[str(self.my_rf_channel)]-lsumcha[str(self.my_rf_channel)]) #load difference between the load of the current channel from last channel switch to load now on the channel
+            time_diff_ls = time_now - self.last_channel_switch_time # time difference last channel switch in ms
+            if ((load_diff_bc <= 1.0) or (load_diff_cc <= 1.0 )) and (time_diff_ls < self.chaSwitchGuardTimeLoWLoadChange): 
                 #if load difference is smaller or equal 1 (of the currently used channel or the channel we want to switch to) 
                 #and the channel was switched lastly, dont switch the channel.
                 print "!!!Channel Switch stopped by Oscilation Protection Mechanism!!!"
