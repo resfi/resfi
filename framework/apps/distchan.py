@@ -57,6 +57,10 @@ class ResFiApp(AbstractResFiApp):
         self.sniffer_context = zmq.Context()
         self.sniffer_socket = self.sniffer_context.socket(zmq.REQ)
         self.sniffer_socket.connect ("tcp://localhost:%s" % self.sniffer_port)
+        self.loadInformationTimeout = 30000 #in ms
+        self.leastLoadMemory = {}
+        self.last_channel_switch_time = 0
+        self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
         #self.available_ch_lst.append(36)
@@ -118,7 +122,7 @@ class ResFiApp(AbstractResFiApp):
                     
                     #policy for handling information about the same ap on the same channel
                     if nrf_bssid in self.nbMap and self.nbMap[nrf_bssid]['ch'] == nrf_channel:
-                        if int(round(time.time() * 1000)) - self.nbMap[nrf_bssid]['last_refresh'] > 30000: #30sec timeout for values regardless who was detector or which type
+                        if int(round(time.time() * 1000)) - self.nbMap[nrf_bssid]['last_refresh'] > self.loadInformationTimeout: #30sec timeout for values regardless who was detector or which type
                             # save last update dont care who is the detector
                             self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                         elif self.nbMap[nrf_bssid]['type'] == 'rf' and nrf_type == 'nrf': #leave the rf value dont care about the estimated value
@@ -138,7 +142,7 @@ class ResFiApp(AbstractResFiApp):
             #Filter out outdated entries    
             outdatedList = []
             for entry in self.nbMap: # for each entry
-                if int(round(time.time() * 1000)) - self.nbMap[entry]['last_refresh'] > 30000:
+                if int(round(time.time() * 1000)) - self.nbMap[entry]['last_refresh'] > self.loadInformationTimeout:
                     outdatedList.append(entry)
             for oldEntry in outdatedList:      
                 del self.nbMap[oldEntry]
@@ -170,7 +174,7 @@ class ResFiApp(AbstractResFiApp):
         
         #policy for handling information about the same ap on the same channel
         if nb_bssid in self.nbMap and self.nbMap[nb_bssid]['ch'] == nb_channel:
-            if int(round(time.time() * 1000)) - self.nbMap[nb_bssid]['last_refresh'] > 30000: #30sec timeout for values regardless who was detector or which type
+            if int(round(time.time() * 1000)) - self.nbMap[nb_bssid]['last_refresh'] > self.loadInformationTimeout: #30sec timeout for values regardless who was detector or which type
                 # save last update dont care who is the detector
                 self.nbMap[nb_bssid] = {'load': nb_load, 'ch': nb_channel, 'type': nb_type, 'detector' : nb_detector, 'last_refresh' : int(round(time.time() * 1000))}
             elif self.nbMap[nb_bssid]['type'] == 'nrf' and nb_type == 'rf': # if the new measurement is rf and the old nrf overwrite it
@@ -214,11 +218,24 @@ class ResFiApp(AbstractResFiApp):
         self.my_rf_channel = self.getChannel()
         print "Best Channel: "+str(bestcha)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        #Check how big the load difference on the channel is in comparison to the last time we used this channel
+        if str(bestcha) in self.leastLoadMemory:
+            time_now = int(round(time.time() * 1000))
+            if ((abs(self.leastLoadMemory[str(bestcha)]-leastload) <= 1.0) or (abs(self.leastLoadMemory[str(self.my_rf_channel)-lsumcha[str(self.my_rf_channel)]) <= 1.0 )) and (time_now - self.last_channel_switch_time) < self.chaSwitchGuardTimeLoWLoadChange: 
+                #if load difference is smaller or equal 1 (of the currently used channel or the channel we want to switch to) 
+                #and the channel was switched lastly, dont switch the channel.
+                print "!!!Channel Switch stopped by Oscilation Protection Mechanism!!!"
+                print "Duration till channel was switched lastly: "+str(time_now - self.last_channel_switch_time)+"ms, load difference of best channel: "+str(self.leastLoadMemory[str(bestcha)]-leastload)
+                return
+        #Save last least load of channel in memory for oscilation avoidance
+        self.leastLoadMemory[str(bestcha)]=leastload
+        
         if bestcha is not 0 and self.my_rf_channel != bestcha:
             self.log.info("(%s): plugin:: dist-chan chanel switch from %s to %s"
                            % (self.agent.getNodeID(), str(self.my_rf_channel), str(bestcha)))
             self.setChannel(bestcha)
             self.my_rf_channel = self.getChannel()
+            self.last_channel_switch_time = int(round(time.time() * 1000))
 
 
     """
