@@ -64,9 +64,10 @@ class ResFiApp(AbstractResFiApp):
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
         #self.available_ch_lst.append(36)
-        #self.available_ch_lst.append(40)
-        self.available_ch_lst.append(44)
         self.available_ch_lst.append(48)
+        self.available_ch_lst.append(1)
+        self.available_ch_lst.append(6)
+        self.available_ch_lst.append(10)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
@@ -219,7 +220,7 @@ class ResFiApp(AbstractResFiApp):
         print "Best Channel: "+str(bestcha)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
-        if str(bestcha) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
+        if str(bestcha) in self.leastLoadMemory and str(self.my_rf_channel) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
             time_now = int(round(time.time() * 1000))
             load_diff_bc = abs(self.leastLoadMemory[str(bestcha)]-leastload) #load difference of new best channel between the load the channel had when we lastly switched to that channel to now
             load_diff_cc = abs(self.leastLoadMemory[str(self.my_rf_channel)]-lsumcha[str(self.my_rf_channel)]) #load difference between the load of the current channel from last channel switch to load now on the channel
