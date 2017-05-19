@@ -114,8 +114,12 @@ class ResFiApp(AbstractResFiApp):
             my_msg = {}
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf', 'detector' : self.agent.getNodeID()}
             self.sendToNeighbors(my_msg, 1)
+            isrf = 0
             for ap in self.nrf_load:
-                if str(self.getBssid()) != str(ap):
+                if ap in self.nbMap:
+                    if self.nbMap[ap]['type'] == 'rf':
+                        isrf = 1 #The result is an resfi ap
+                if str(self.getBssid()) != str(ap) and isrf == 0:
                     nrf_channel = self.agent.wifi_helper.translateFrequencyToChannel(int(self.nrf_freq[str(ap)]))
                     nrf_load = float(self.nrf_load[str(ap)])
                     nrf_bssid = str(ap)
@@ -175,6 +179,12 @@ class ResFiApp(AbstractResFiApp):
         nb_type = message['type'] #rf or nrf
         nb_detector = message['detector']
         
+        if nb_type == 'nrf':
+            if nb_bssid in self.nbMap:
+                if self.nbMap[ap]['type'] == 'rf':
+                    return #The result is an resfi ap
+        if nb_bssid == self.getBssid():
+            return
         #policy for handling information about the same ap on the same channel
         if nb_bssid in self.nbMap and self.nbMap[nb_bssid]['ch'] == nb_channel:
             if int(round(time.time() * 1000)) - self.nbMap[nb_bssid]['last_refresh'] > self.loadInformationTimeout: #30sec timeout for values regardless who was detector or which type
@@ -226,7 +236,7 @@ class ResFiApp(AbstractResFiApp):
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
-        print "Best Channel: "+str(bestcha)
+        print "Best Channel: "+str(bestcha) + "Current Channel: "+str(self.my_rf_channel)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
         if str(bestcha) in self.leastLoadMemory and str(self.my_rf_channel) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
@@ -251,6 +261,7 @@ class ResFiApp(AbstractResFiApp):
             #Save last least load of channel in memory for oscilation avoidance
             self.leastLoadMemory[str(bestcha)]=leastload
             self.last_channel_switch_time = int(round(time.time() * 1000))
+            self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,60000)
 
 
     """
