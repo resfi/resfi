@@ -181,7 +181,7 @@ class ResFiApp(AbstractResFiApp):
         
         if nb_type == 'nrf':
             if nb_bssid in self.nbMap:
-                if self.nbMap[ap]['type'] == 'rf':
+                if self.nbMap[nb_bssid]['type'] == 'rf':
                     return #The result is an resfi ap
         if nb_bssid == self.getBssid():
             return
