@@ -63,11 +63,11 @@ class ResFiApp(AbstractResFiApp):
         self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
-        #self.available_ch_lst.append(36)
-        #self.available_ch_lst.append(40)
+        self.available_ch_lst.append(44)
+        self.available_ch_lst.append(52)
         self.available_ch_lst.append(48)
         self.available_ch_lst.append(56)
-        self.available_ch_lst.append(60)
+        self.available_ch_lst.append(62)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
@@ -200,19 +200,26 @@ class ResFiApp(AbstractResFiApp):
         self.log.debug("%.2f: (%s): plugin:: dist-chan received from %s info: [%s](%s): %s/%s"
                        % (self.getRelativeTs(), self.agent.getNodeID(), sender, str(nb_bssid), str(nb_type), str(nb_channel), str(nb_load)))
         lsumcha = {}
+        lsumcha_rf = {}
+        lsumcha_nrf = {}
         for ch in self.ch_lst: # for each channel
             lsumcha[str(ch)] = 0.0 # reset to zero
+            lsumcha_rf[str(ch)] = 0.0 # reset to zero
+            lsumcha_nrf[str(ch)] = 0.0 # reset to zero
             lsumcha[str(ch)] = lsumcha[str(ch)] + self.load 
             for entry in self.nbMap: # for each neighbor
                 nbCh = self.nbMap[entry]['ch']
                 if nbCh == ch: # same channel
                     lsumcha[str(ch)] = lsumcha[str(ch)] + self.nbMap[entry]['load']
-                   
+                    if self.nbMap[entry]['type'] == "nrf":
+                        lsumcha_nrf[str(ch)] = lsumcha_nrf[str(ch)] + self.nbMap[entry]['load']
+                    elif self.nbMap[entry]['type'] == "rf":
+                        lsumcha_rf[str(ch)] = lsumcha_rf[str(ch)] + self.nbMap[entry]['load']
         bestcha = 0
         leastload = 1e9
         print "XXXXXXXX CHANNEL LOAD XXXXXXXXXX"
         for ch in self.ch_lst: # for each channel
-                        print"Channel: "+str(ch)+"\t Load: "+str(lsumcha[str(ch)])
+                        print"Channel: "+str(ch)+"\t Load: "+str(lsumcha[str(ch)]-self.load) +"\t Load+own: "+str(lsumcha[str(ch)])+ "\t loadrf: "+str(lsumcha_rf[str(ch)])+"\t loadnrf: "+str(lsumcha_nrf[str(ch)])
 			if lsumcha[str(ch)] < leastload:
 				bestcha = ch
 				leastload = lsumcha[str(ch)]

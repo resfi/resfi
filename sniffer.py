@@ -33,7 +33,21 @@ def zmqServer():
 
 def packet_handler(pkt) :
     #print pkt.notdecoded.encode('hex')
-    if pkt.haslayer(Dot11) and pkt.type == 2:
+    if pkt.haslayer(Dot11) and pkt.type == 0 and pkt.subtype == 8:
+        freq = pkt.notdecoded[18:20]
+        if len(freq) == 2 and isinstance(freq, basestring):
+            freq = struct.unpack('h', freq)[0]
+        else:
+            freq = -1
+        bssid = pkt.addr3
+        ap = bssid
+        if ap not in aps:
+            aps[ap] = {}
+            aps[ap]['activeStas'] = []
+            aps[ap]['freq'] = freq
+            aps[ap]['last_refresh'] = int(round(time.time() * 1000))
+
+    elif pkt.haslayer(Dot11) and pkt.type == 2:
             DS = pkt.FCfield & 0x3
             to_DS = DS & 0x1 != 0
             from_DS = DS & 0x2 != 0
