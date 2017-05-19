@@ -63,11 +63,11 @@ class ResFiApp(AbstractResFiApp):
         self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
-        self.available_ch_lst.append(44)
-        self.available_ch_lst.append(52)
-        self.available_ch_lst.append(48)
-        self.available_ch_lst.append(56)
-        self.available_ch_lst.append(62)
+        #self.available_ch_lst.append(48)
+        self.available_ch_lst.append(116)
+        self.available_ch_lst.append(120)
+        self.available_ch_lst.append(124)
+        #self.available_ch_lst.append(62)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
         self.my_rf_channel = self.getChannel()
