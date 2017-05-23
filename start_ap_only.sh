@@ -19,6 +19,11 @@ done
 
 sudo rfkill unblock all 2>/dev/null
 
+sudo killall -9 python
+
+#Configure Sniffer Interface
+sudo ./create_mon0.sh ${phy}
+sleep 1
 #Configuring AP
 sleep 1
 sudo killall -9 hostapd 2> /dev/null
@@ -30,3 +35,6 @@ sleep 1
 sudo service network-manager stop /dev/null
 sleep 1
 sudo ./hostapd-20131120/hostapd/hostapd hostapd-20131120/hostapd/hostapd-ch40.conf &
+sleep 5
+sudo python ./sniffer.py > /tmp/sniffer.log &
+
