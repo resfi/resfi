@@ -39,7 +39,16 @@ class ResFiApp(AbstractResFiApp):
         AbstractResFiApp.__init__(self, log, 'de.berlin.tu.tkn.distchan', agent)
         # channel change interval
         self.jitter = 10
-        self.min_load = 1
+        if self.agent.getNodeID() == "192.168.200.29":
+            self.min_load = 1
+        elif self.agent.getNodeID() == "192.168.200.10":
+            self.min_load = 3
+        elif self.agent.getNodeID() == "192.168.200.40":
+            self.min_load = 2
+        elif self.agent.getNodeID() == "192.168.200.15":
+            self.min_load = 10
+        else:
+            self.min_load = 0.1
         self.start_ts = long(time.time() * 1000000)
         self.Hc = {}
         self.Mc = {}
