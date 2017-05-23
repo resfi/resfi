@@ -62,6 +62,7 @@ class ResFiApp(AbstractResFiApp):
         self.leastLoadMemory = {}
         self.last_channel_switch_time = 0
         self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
+        self.measurementStabilityTime = 5000 #in ms time after a channel switch when channel measurement can be distributed to neighbors
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
         #self.available_ch_lst.append(48)
@@ -162,8 +163,9 @@ class ResFiApp(AbstractResFiApp):
                         self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                     
                     #self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
-                    self.sendToNeighbors(my_msg, 1)
-                    print "AP passive measurement sent to neighbors AP: "+str(nrf_bssid)
+                    if((int(round(time.time() * 1000)) - self.last_channel_switch_time) > self.measurementStabilityTime):
+                        self.sendToNeighbors(my_msg, 1)
+                        print "AP passive measurement sent to neighbors AP: "+str(nrf_bssid)
                 else:
                     print "This is our own AP, we will not process it...(NRF AP: "+str(ap)+") own AP: ("+str(self.getBssid())+") result of last if: "+str(str(self.getBssid()) != str(ap) and isrf == 0)+" isrf variable: "+str(isrf)
             #Filter out outdated entries    
