@@ -58,6 +58,7 @@ class ResFiApp(AbstractResFiApp):
         self.sniffer_socket = self.sniffer_context.socket(zmq.REQ)
         self.sniffer_socket.connect ("tcp://localhost:%s" % self.sniffer_port)
         self.loadInformationTimeout = 30000 #in ms
+        self.loadInformationTimeoutRandom = random.uniform(10000, 60000) #for deleting APs after no new information was received
         self.leastLoadMemory = {}
         self.last_channel_switch_time = 0
         self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
@@ -116,6 +117,7 @@ class ResFiApp(AbstractResFiApp):
             self.sendToNeighbors(my_msg, 1)
             isrf = 0
             for ap in self.nrf_load: #Iterate over new NRF APs from Sniffer
+                isrf = 0
                 print "Now Processing AP: "+str(ap)
                 if ap in self.nbMap: #check if we already have an entry for that ap in our database
                     print "AP already in database "+str(ap)
@@ -163,14 +165,15 @@ class ResFiApp(AbstractResFiApp):
                     self.sendToNeighbors(my_msg, 1)
                     print "AP passive measurement sent to neighbors AP: "+str(nrf_bssid)
                 else:
-                    print "This is our own AP, we will not process it...(NRF AP: "+str(ap)+") own AP: ("+str(self.getBssid())+") result of last if: "+str(str(self.getBssid()) != str(ap) and isrf == 0)  
+                    print "This is our own AP, we will not process it...(NRF AP: "+str(ap)+") own AP: ("+str(self.getBssid())+") result of last if: "+str(str(self.getBssid()) != str(ap) and isrf == 0)+" isrf variable: "+str(isrf)
             #Filter out outdated entries    
             outdatedList = []
             for entry in self.nbMap: # for each entry
-                if int(round(time.time() * 1000)) - self.nbMap[entry]['last_refresh'] > self.loadInformationTimeout:
+                if int(round(time.time() * 1000)) - self.nbMap[entry]['last_refresh'] > self.loadInformationTimeoutRandom:
                     outdatedList.append(entry)
             for oldEntry in outdatedList:      
                 del self.nbMap[oldEntry]
+                self.loadInformationTimeoutRandom = random.uniform(10000, 60000)
             # random backoff
             rnd_wait_time = random.uniform(0, self.jitter/2)
             time.sleep(rnd_wait_time)
