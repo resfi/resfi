@@ -115,37 +115,55 @@ class ResFiApp(AbstractResFiApp):
             my_msg['payload'] = {'ch' : self.my_rf_channel, 'load' : self.load, 'bssid' : self.getBssid(), 'type' : 'rf', 'detector' : self.agent.getNodeID()}
             self.sendToNeighbors(my_msg, 1)
             isrf = 0
-            for ap in self.nrf_load:
-                if ap in self.nbMap:
-                    if self.nbMap[ap]['type'] == 'rf':
+            for ap in self.nrf_load: #Iterate over new NRF APs from Sniffer
+                print "Now Processing AP: "+str(ap)
+                if ap in self.nbMap: #check if we already have an entry for that ap in our database
+                    print "AP already in database "+str(ap)
+                    if self.nbMap[ap]['type'] == 'rf': # if this ap is an rf neihbor we dont use the passive measurement
                         isrf = 1 #The result is an resfi ap
-                if str(self.getBssid()) != str(ap) and isrf == 0:
+                        print "AP: "+str(ap) +" is an ResFi AP, we will not consider it as NRF AP"
+                    else:
+                        print "But no ResFi AP! "+str(ap)
+                        isrf = 0
+                if str(self.getBssid()) != str(ap) and isrf == 0: # check if ap is our local ap 
                     nrf_channel = self.agent.wifi_helper.translateFrequencyToChannel(int(self.nrf_freq[str(ap)]))
                     nrf_load = float(self.nrf_load[str(ap)])
                     nrf_bssid = str(ap)
                     nrf_type = 'nrf'
                     my_msg = {}
                     my_msg['payload'] = {'ch' : nrf_channel, 'load' : nrf_load, 'bssid' : nrf_bssid, 'type' : nrf_type, 'detector' : self.agent.getNodeID()}
-                    
+                    print "Not our BSSID and not a RF AP "+str(ap) 
                     #policy for handling information about the same ap on the same channel
                     if nrf_bssid in self.nbMap and self.nbMap[nrf_bssid]['ch'] == nrf_channel:
+                        print "AP is already in Neighbor Map "+str(ap)
                         if int(round(time.time() * 1000)) - self.nbMap[nrf_bssid]['last_refresh'] > self.loadInformationTimeout: #30sec timeout for values regardless who was detector or which type
                             # save last update dont care who is the detector
+                            print "AP info updated (timeout) "+str(nrf_bssid)
                             self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                         elif self.nbMap[nrf_bssid]['type'] == 'rf' and nrf_type == 'nrf': #leave the rf value dont care about the estimated value
-                            pass    
+                            pass
+                            print "AP info NOT added (RF overwrite) "+str(nrf_bssid)    
                         elif self.nbMap[nrf_bssid]['detector'] == self.agent.getNodeID(): # if it is just an update from the original detector, update own neighbor db       
                             self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
+                            print "AP info updated (update from last save) "+str(nrf_bssid)
                         elif self.nbMap[nrf_bssid]['detector'] != self.agent.getNodeID(): #if I have new information from different detector, take the worst case assumption
                             if self.nbMap[nrf_bssid]['load'] > nrf_load:
                                 pass
+                                print "AP info NOT updated (lower load measurement from different detector without timeout)  "+str(nrf_bssid)
                             else:        
                                 self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
+                                print "AP info updated (Higher load from different detector without timeout) "+str(nrf_bssid)
+                        else:
+                            print "AP not added reason unknown "+str(nrf_bssid)
                     else:
+                        print "AP info added (New NRF AP) "+str(nrf_bssid)
                         self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                     
                     #self.nbMap[nrf_bssid] = {'load': nrf_load, 'ch': nrf_channel, 'type': nrf_type, 'detector' : self.agent.getNodeID(), 'last_refresh' : int(round(time.time() * 1000))}
                     self.sendToNeighbors(my_msg, 1)
+                    print "AP passive measurement sent to neighbors AP: "+str(nrf_bssid)
+                else:
+                    print "This is our own AP, we will not process it...(NRF AP: "+str(ap)+") own AP: ("+str(self.getBssid())+") result of last if: "+str(str(self.getBssid()) != str(ap) and isrf == 0)  
             #Filter out outdated entries    
             outdatedList = []
             for entry in self.nbMap: # for each entry
