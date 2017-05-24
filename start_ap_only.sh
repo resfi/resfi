@@ -32,9 +32,11 @@ sudo iw phy ${phy} interface add ap5 type monitor
 sleep 1
 sudo ifconfig ap5 192.168.6.1 netmask 255.255.255.0
 sleep 1
-sudo service network-manager stop /dev/null
+sudo service network-manager stop 2>/dev/null
 sleep 1
 sudo ./hostapd-20131120/hostapd/hostapd hostapd-20131120/hostapd/hostapd-ch40.conf &
 sleep 5
+sudo ifconfig mon0 up
+sleep 1
 sudo python ./sniffer.py > /tmp/sniffer.log &
 

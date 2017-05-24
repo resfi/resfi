@@ -39,7 +39,16 @@ class ResFiApp(AbstractResFiApp):
         AbstractResFiApp.__init__(self, log, 'de.berlin.tu.tkn.distchan', agent)
         # channel change interval
         self.jitter = 10
-        self.min_load = 1
+        if self.agent.getNodeID() == "192.168.200.29":
+            self.min_load = 1
+        elif self.agent.getNodeID() == "192.168.200.10":
+            self.min_load = 3
+        elif self.agent.getNodeID() == "192.168.200.40":
+            self.min_load = 2
+        elif self.agent.getNodeID() == "192.168.200.15":
+            self.min_load = 10
+        else:
+            self.min_load = 0.1
         self.start_ts = long(time.time() * 1000000)
         self.Hc = {}
         self.Mc = {}
@@ -61,14 +70,18 @@ class ResFiApp(AbstractResFiApp):
         self.loadInformationTimeoutRandom = random.uniform(10000, 60000) #for deleting APs after no new information was received
         self.leastLoadMemory = {}
         self.last_channel_switch_time = 0
-        self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
+        self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,5000) # in ms
         self.measurementStabilityTime = 5000 #in ms time after a channel switch when channel measurement can be distributed to neighbors
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
-        #self.available_ch_lst.append(48)
+#        self.available_ch_lst.append(44)
+#        self.available_ch_lst.append(48)
+#        self.available_ch_lst.append(52)
+###################################################
         self.available_ch_lst.append(116)
         self.available_ch_lst.append(120)
         self.available_ch_lst.append(124)
+####################################################
         #self.available_ch_lst.append(62)
         self.ch_lst = self.available_ch_lst
         self.log.info("%.2f: (%s): plugin:: dist-chan available channels = %s " % (self.getRelativeTs(), self.agent.getNodeID(), str(self.available_ch_lst)))				
@@ -284,7 +297,7 @@ class ResFiApp(AbstractResFiApp):
             #Save last least load of channel in memory for oscilation avoidance
             self.leastLoadMemory[str(bestcha)]=leastload
             self.last_channel_switch_time = int(round(time.time() * 1000))
-            self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,60000)
+            self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,5000)
 
 
     """
