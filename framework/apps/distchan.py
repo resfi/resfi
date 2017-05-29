@@ -181,6 +181,7 @@ class ResFiApp(AbstractResFiApp):
                         self.sendToNeighbors(my_msg, 1)
                         #print "AP passive measurement sent to neighbors AP: "+str(nrf_bssid)
                 else:
+                    pass
                     #print "This is our own AP, we will not process it...(NRF AP: "+str(ap)+") own AP: ("+str(self.getBssid())+") result of last if: "+str(str(self.getBssid()) != str(ap) and isrf == 0)+" isrf variable: "+str(isrf)
             #Filter out outdated entries    
             outdatedList = []
