@@ -11,7 +11,8 @@ while true; do
         sudo kill -9 $(ps aux | grep "python resfi_loader.py" | awk '{ print $2 }' | head -n1)
         rm /tmp/resfi_console_demo.log
         sleep 1
-        /home/robat/resfi/start_resfi_only.sh
+        /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log &
+        /home/robat/resfi/control_mailbox_failure.sh &
     else
         echo "Check complete, no erros found."
         # code if not found
