@@ -48,11 +48,11 @@ sleep 1
 
 sudo hostapd /home/robat/resfi/test/hostapd.conf &
 
-sleep 1
+sleep 3
 
 sudo python /home/robat/resfi/test/simulate_stas2.py
 
-sleep 7
+sleep 1
 
 sudo killall -9 hostapd
 sudo iw dev ap0 del

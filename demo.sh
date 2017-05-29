@@ -31,7 +31,7 @@ then
 	ssh 192.168.200.15 "sudo killall -9 hostapd &2>mute.log"
 	ssh -f 192.168.200.15 "cd /home/robat/resfi/ && /home/robat/resfi/start_ap_only.sh phy0 &> /tmp/hostapd_home4.log"
 
-secs=$((60))
+secs=$((45))
 while [ $secs -gt 0 ]; do
    echo -ne "Home APs started, starting ResFi on Home APs in : $secs\033[0K\r"
    sleep 1
@@ -40,7 +40,7 @@ done
 
     echo "-> starting ResFi on Home AP 1"
         ssh -f 192.168.200.29 "cd /home/robat/resfi/ && /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log"
-
+        ssh -f 192.168.200.29 "cd /home/robat/resfi/ && /home/robat/resfi/control_mailbox_failure.sh &> /tmp/resfi_mailbox_failure.log"
 secs=$((20))
 while [ $secs -gt 0 ]; do
    echo -ne "Starting ResFi on Home AP 2 in : $secs\033[0K\r"
@@ -51,7 +51,7 @@ done
 	echo "-> starting ResFi on Home AP 2"
 #	ssh 192.168.200.10 "sudo killall -9 python &2>mute.log"
 	ssh -f 192.168.200.10 "cd /home/robat/resfi/ && /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log"
-    sleep 20
+        ssh -f 192.168.200.10 "cd /home/robat/resfi/ && /home/robat/resfi/control_mailbox_failure.sh &> /tmp/resfi_mailbox_failure.log"
 
 secs=$((20))
 while [ $secs -gt 0 ]; do
@@ -64,6 +64,7 @@ done
     echo "-> starting ResFi on Home AP 3"
 #	ssh 192.168.200.40 "sudo killall -9 python &2>mute.log"
 	ssh -f 192.168.200.40 "cd /home/robat/resfi/ && /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log"
+        ssh -f 192.168.200.40 "cd /home/robat/resfi/ && /home/robat/resfi/control_mailbox_failure.sh &> /tmp/resfi_mailbox_failure.log"
 
 secs=$((20))
 while [ $secs -gt 0 ]; do
@@ -77,7 +78,7 @@ done
 #	ssh 192.168.200.15 "sudo killall -9 python &2>mute.log"
 	ssh -f 192.168.200.15 "cd /home/robat/resfi/ && /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log"
         ssh -f 192.168.200.15 "cd /home/robat/resfi/ && /home/robat/resfi/control_mailbox_failure.sh &> /tmp/resfi_mailbox_failure.log"
-    
+sleep 20    
     echo  "ResFi with Channel Assignment Application on all Home APs started"
 
 secs=$((40))
@@ -90,8 +91,8 @@ done
     echo "Starting Interfering Wi-Fi Network"
     sudo /home/robat/resfi/test/start_nrf_ap.sh phy1
     sleep 1
-    echo "Interferer turned off, waiting till ResFi APs found good assignment again"
-secs=$((60))
+    #echo "Interferer turned off, waiting till ResFi APs found good assignment again"
+secs=$((10))
 while [ $secs -gt 0 ]; do
    echo -ne "Repeating Demo in : $secs\033[0K\r"
    sleep 1
