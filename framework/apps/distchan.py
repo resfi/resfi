@@ -109,7 +109,7 @@ class ResFiApp(AbstractResFiApp):
         while not self.isTerminated():
 
             self.my_rf_channel = self.getChannel()
-            self.log.debug("%.2f: (%s): neigh: %d uch=%d, ach:%s, load:%0.2f" % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst), self.load))
+            self.log.info("%.2f: (%s): neigh: %d uch=%d, ach:%s, load:%0.2f" % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst), self.load))
 
             self.load = max(self.min_load, self.getNetworkLoad())
             self.log.debug('Own Load is %0.2f' % self.load)
@@ -274,7 +274,7 @@ class ResFiApp(AbstractResFiApp):
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
-        print "Best Ch: "+str(bestcha) + "Current Ch: "+str(self.my_rf_channel)
+        print "BestCh: "+str(bestcha) + ", CurCh: "+str(self.my_rf_channel) + ", NoN: "+str(self.getNeighbors())+", load: "+str(self.load)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
         if str(bestcha) in self.leastLoadMemory and str(self.my_rf_channel) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
