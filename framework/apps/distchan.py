@@ -267,14 +267,14 @@ class ResFiApp(AbstractResFiApp):
         leastload = 1e9
         print "XXXXXXXX CHANNEL LOAD XXXXXXXXXX"
         for ch in self.ch_lst: # for each channel
-                        print"Channel: "+str(ch)+"\t Load: "+str(lsumcha[str(ch)]-self.load) +"\t Load+own: "+str(lsumcha[str(ch)])+ "\t loadrf: "+str(lsumcha_rf[str(ch)])+"\t loadnrf: "+str(lsumcha_nrf[str(ch)])
+                        print"CH: "+str(ch)+", l: "+str(lsumcha[str(ch)]-self.load) +", l+o: "+str(lsumcha[str(ch)])+ ", lrf: "+str(lsumcha_rf[str(ch)])+", lnrf: "+str(lsumcha_nrf[str(ch)])
 			if lsumcha[str(ch)] < leastload:
 				bestcha = ch
 				leastload = lsumcha[str(ch)]
 
         # the best channel to be used
         self.my_rf_channel = self.getChannel()
-        print "Best Channel: "+str(bestcha) + "Current Channel: "+str(self.my_rf_channel)
+        print "Best Ch: "+str(bestcha) + "Current Ch: "+str(self.my_rf_channel)
         print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
         #Check how big the load difference on the channel is in comparison to the last time we used this channel
         if str(bestcha) in self.leastLoadMemory and str(self.my_rf_channel) in self.leastLoadMemory and bestcha is not 0 and self.my_rf_channel != bestcha:
@@ -285,8 +285,8 @@ class ResFiApp(AbstractResFiApp):
             if ((load_diff_bc <= 1.0) or (load_diff_cc <= 1.0 )) and (time_diff_ls < self.chaSwitchGuardTimeLoWLoadChange): 
                 #if load difference is smaller or equal 1 (of the currently used channel or the channel we want to switch to) 
                 #and the channel was switched lastly, dont switch the channel.
-                print "!!!Channel Switch stopped by Oscilation Protection Mechanism!!!"
-                #print "Duration till channel was switched lastly: "+str(time_now - self.last_channel_switch_time)+"ms ,"
+                print "!!!Channel Switch stopped by Oscilation Protection Mechanism!"
+                print "Duration till channel was switched lastly: "+str(time_now - self.last_channel_switch_time)+"ms ,"
                 #print "load difference of best channel: \t"+str(load_diff_bc)+", "
                 #print "load difference of currently used channel: \t"+str(load_diff_cc)+"."
                 return
