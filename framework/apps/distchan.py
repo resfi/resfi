@@ -109,7 +109,7 @@ class ResFiApp(AbstractResFiApp):
         while not self.isTerminated():
 
             self.my_rf_channel = self.getChannel()
-            self.log.info("%.2f: (%s): plugin:: dist-chan (curr neighbors: %d) curr ch=%d, used channels:%s " % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst)))
+            self.log.debug("%.2f: (%s): neigh: %d uch=%d, ach:%s, load:%0.2f" % (self.getRelativeTs(), self.agent.getNodeID(), len(self.getNeighbors()), self.my_rf_channel, str(self.ch_lst), self.load))
 
             self.load = max(self.min_load, self.getNetworkLoad())
             self.log.debug('Own Load is %0.2f' % self.load)
@@ -203,7 +203,7 @@ class ResFiApp(AbstractResFiApp):
     receive callback function
     """
     def rx_cb(self, json_data):
-        self.log.info("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], json_data['tx_time_mus'], json_data))
+        self.log.debug("%s :: recv() msg from %s at %d: %s" % (self.ns, json_data['originator'], json_data['tx_time_mus'], json_data))
 
         message = json_data['payload']
 
