@@ -52,7 +52,7 @@ sleep 1
 
 sudo python /home/robat/resfi/test/simulate_stas2.py
 
-sleep 1
+sleep 7
 
 sudo killall -9 hostapd
 sudo iw dev ap0 del

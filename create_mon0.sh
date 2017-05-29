@@ -18,6 +18,8 @@ sudo iw phy $PHYNAME interface add mon0 type managed
 sleep 1
 sudo ifconfig mon0 hw ether b8:a3:86:01:ff:d2
 
+sudo ifconfig mon0 hw ether b8:a3:86:01:ff:d2
+
 sleep 1
 
 sudo ifconfig mon0 up
