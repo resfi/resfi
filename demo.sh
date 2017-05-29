@@ -76,6 +76,7 @@ done
     echo "-> starting ResFi on Home AP 4"
 #	ssh 192.168.200.15 "sudo killall -9 python &2>mute.log"
 	ssh -f 192.168.200.15 "cd /home/robat/resfi/ && /home/robat/resfi/start_resfi_only.sh &> /tmp/resfi_console_demo.log"
+        ssh -f 192.168.200.15 "cd /home/robat/resfi/ && /home/robat/resfi/control_mailbox_failure.sh &> /tmp/resfi_mailbox_failure.log"
     
     echo  "ResFi with Channel Assignment Application on all Home APs started"
 
