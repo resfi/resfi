@@ -8,6 +8,8 @@ fi
 
 phy=$1
 
+/home/robat/resfi/copy_hostapd_conf.sh
+
 # cleanup
 for i in `seq 0 10`;
 do
