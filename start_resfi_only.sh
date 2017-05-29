@@ -1,4 +1,5 @@
 #!/bin/bash
 
-cd framework/
+cd /home/robat/resfi/framework/
 sudo python resfi_loader.py
+

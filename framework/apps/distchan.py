@@ -70,7 +70,7 @@ class ResFiApp(AbstractResFiApp):
         self.loadInformationTimeoutRandom = random.uniform(10000, 60000) #for deleting APs after no new information was received
         self.leastLoadMemory = {}
         self.last_channel_switch_time = 0
-        self.chaSwitchGuardTimeLoWLoadChange = 30000 # in ms
+        self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,5000) # in ms
         self.measurementStabilityTime = 5000 #in ms time after a channel switch when channel measurement can be distributed to neighbors
         #self.available_ch_lst = self.getAvailableChannels(True)
         self.available_ch_lst = []
@@ -297,7 +297,7 @@ class ResFiApp(AbstractResFiApp):
             #Save last least load of channel in memory for oscilation avoidance
             self.leastLoadMemory[str(bestcha)]=leastload
             self.last_channel_switch_time = int(round(time.time() * 1000))
-            self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,60000)
+            self.chaSwitchGuardTimeLoWLoadChange = random.uniform(10,5000)
 
 
     """
