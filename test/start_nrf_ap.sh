@@ -47,7 +47,7 @@ sudo ifconfig ap0 up
 sleep 1
 
 sudo hostapd /home/robat/resfi/test/hostapd.conf &
-
+sudo blinkstick --morph blue
 sleep 3
 
 sudo python /home/robat/resfi/test/simulate_stas2.py
