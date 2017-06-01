@@ -20,7 +20,7 @@ do
 done
 
 sudo rfkill unblock all 2>/dev/null
-
+sudo service network-manager stop 2>/dev/null
 sudo killall -9 python
 
 #Configure Sniffer Interface
